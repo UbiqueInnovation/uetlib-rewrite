@@ -1,0 +1,10 @@
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: ch.ubique.uetlib.MigratePackages
+displayName: Migrate uetlib Java packages
+description: Move Java packages from ch.ubique.backend to ch.ubique.uetlib, including subpackages.
+recipeList:
+  - org.openrewrite.java.ChangePackage:
+      oldPackageName: ch.ubique.backend
+      newPackageName: ch.ubique.uetlib
+      recursive: true
