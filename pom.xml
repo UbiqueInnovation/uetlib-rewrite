@@ -18,7 +18,12 @@
     <developers>
         <developer><name>Ubique</name><organization>Ubique</organization><organizationUrl>https://www.ubique.ch</organizationUrl></developer>
     </developers>
-    <scm>
+    <organization>
+        <name>Ubique Innovation AG</name>
+        <url>https://www.ubique.ch</url>
+    </organization>
+
+    <scm child.scm.url.inherit.append.path="false" child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false">
         <connection>scm:git:https://github.com/UbiqueInnovation/uetlib-rewrite.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/UbiqueInnovation/uetlib-rewrite.git</developerConnection>
         <url>https://github.com/UbiqueInnovation/uetlib-rewrite</url>
@@ -42,6 +47,7 @@
     </dependencyManagement>
     <dependencies>
         <dependency><groupId>org.openrewrite</groupId><artifactId>rewrite-java</artifactId></dependency>
+        <dependency><groupId>org.openrewrite</groupId><artifactId>rewrite-xml</artifactId></dependency>
         <dependency><groupId>org.openrewrite</groupId><artifactId>rewrite-test</artifactId><scope>test</scope></dependency>
         <dependency><groupId>org.openrewrite</groupId><artifactId>rewrite-java-17</artifactId><scope>test</scope></dependency>
         <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency>
