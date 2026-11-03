@@ -1,6 +1,7 @@
 package ch.ubique.uetlib.rewrite;
 
 import java.nio.file.Path;
+import java.util.regex.Pattern;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.SourceFile;
@@ -39,15 +40,22 @@ public class MigrateResourceReferences extends Recipe {
                     newPath = MigrateClassReferences.packages(newPath);
                 } else if (path.endsWith(".proto")) {
                     replacement =
-                            text.replaceAll(
-                                    "(java_package\\s*=\\s*\"\\s*)ch\\.ubique\\.backend",
-                                    "$1ch.ubique.uetlib");
+                            Pattern.compile("(java_package\\s*=\\s*\"\\s*)([\\w.]+)")
+                                    .matcher(text)
+                                    .replaceAll(
+                                            match ->
+                                                    match.group(1)
+                                                            + MigrateClassReferences.packages(
+                                                                    match.group(2)));
                 } else if (path.matches(".*/logback[^/]*\\.xml")) {
                     replacement =
-                            MigrateClassReferences.classNames(text)
+                            Pattern.compile("(<logger\\b[^>]*\\bname\\s*=\\s*[\"'])([\\w.]+)")
+                                    .matcher(MigrateClassReferences.classNames(text))
                                     .replaceAll(
-                                            "(<logger\\b[^>]*\\bname\\s*=\\s*[\"'])ch\\.ubique\\.backend",
-                                            "$1ch.ubique.uetlib");
+                                            match ->
+                                                    match.group(1)
+                                                            + MigrateClassReferences.packages(
+                                                                    match.group(2)));
                 } else if (path.endsWith(".xml")
                         || path.endsWith(".properties")
                         || path.endsWith(".yml")

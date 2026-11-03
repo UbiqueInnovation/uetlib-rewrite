@@ -1,5 +1,6 @@
 package ch.ubique.uetlib.rewrite;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,12 +18,56 @@ public class MigrateClassReferences extends Recipe {
     static final String CLIENT_OLD = "ch.ubique.datatrans";
     static final String CLIENT_NEW = "ch.ubique.uetlib.payment.datatrans.client";
 
+    // Only unambiguous package roots can be mapped in scanning/logging strings.
+    private static final Map<String, String> OWNED_PACKAGES =
+            Map.of(
+                    "ch.ubique.uetlib.security", "ch.ubique.uetlib.spring.boot.security",
+                    "ch.ubique.uetlib.cloud", "ch.ubique.uetlib.spring.cloud",
+                    "ch.ubique.uetlib.spring.validation", "ch.ubique.uetlib.spring.boot.validation",
+                    "ch.ubique.uetlib.test.enabledif",
+                            "ch.ubique.uetlib.spring.boot.test.enabledif",
+                    "ch.ubique.uetlib.image.blurhash", "ch.ubique.uetlib.core.image.blurhash",
+                    "ch.ubique.uetlib.image.util", "ch.ubique.uetlib.core.image.util",
+                    "ch.ubique.uetlib.geodb", "ch.ubique.uetlib.geo.db",
+                    "ch.ubique.uetlib.geojob", "ch.ubique.uetlib.geo.job",
+                    "ch.ubique.uetlib.storage.spring", "ch.ubique.uetlib.storage.spring.boot",
+                    "ch.ubique.uetlib.image.webp", "ch.ubique.uetlib.webp");
+
     static String packages(String text) {
-        return text.replace(OLD, NEW).replace(CLIENT_OLD, CLIENT_NEW);
+        String migrated = text.replace(OLD, NEW).replace(CLIENT_OLD, CLIENT_NEW);
+        Matcher matcher = REFERENCE.matcher(migrated);
+        StringBuilder result = new StringBuilder();
+        while (matcher.find()) {
+            String reference = matcher.group();
+            String replacement = reference;
+            for (var entry : MigrateOwnedTypes.TYPES.entrySet()) {
+                String type = entry.getKey();
+                if (reference.equals(type)
+                        || reference.startsWith(type + ".")
+                        || reference.startsWith(type + "$")) {
+                    replacement = entry.getValue() + reference.substring(type.length());
+                    break;
+                }
+            }
+            // Class mappings run first: the old WebP namespace also held core image helpers.
+            for (var entry : OWNED_PACKAGES.entrySet()) {
+                String oldPackage = entry.getKey();
+                String newPackage = entry.getValue();
+                if (replacement.equals(newPackage) || replacement.startsWith(newPackage + "."))
+                    continue;
+                if (replacement.equals(oldPackage) || replacement.startsWith(oldPackage + ".")) {
+                    replacement = newPackage + replacement.substring(oldPackage.length());
+                    break;
+                }
+            }
+            matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
+        }
+        matcher.appendTail(result);
+        return result.toString();
     }
 
     private static final Pattern REFERENCE =
-            Pattern.compile("\\bch\\.ubique\\.(?:backend|datatrans)(?=\\.)[\\w.$]*");
+            Pattern.compile("\\bch\\.ubique\\.(?:backend|datatrans|uetlib)(?=\\.)[\\w.$]*");
     private static final Set<String> SCANNING =
             Set.of(
                     "ComponentScan",
@@ -77,7 +122,9 @@ public class MigrateClassReferences extends Recipe {
             public J.Literal visitLiteral(J.Literal literal, ExecutionContext context) {
                 J.Literal updated = super.visitLiteral(literal, context);
                 if (!(updated.getValue() instanceof String text)
-                        || !(text.contains(OLD) || text.contains(CLIENT_OLD))) {
+                        || !(text.contains(OLD)
+                                || text.contains(CLIENT_OLD)
+                                || text.contains(NEW))) {
                     return updated;
                 }
                 J.Annotation annotation = getCursor().firstEnclosing(J.Annotation.class);
