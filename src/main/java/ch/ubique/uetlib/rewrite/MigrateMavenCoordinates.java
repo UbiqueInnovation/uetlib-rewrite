@@ -3,12 +3,15 @@ package ch.ubique.uetlib.rewrite;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.FindSourceFiles;
 import org.openrewrite.Preconditions;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
+import org.openrewrite.xml.XPathMatcher;
 import org.openrewrite.xml.XmlIsoVisitor;
 import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
@@ -16,6 +19,14 @@ import org.openrewrite.xml.tree.Xml;
 /** Updates known uetlib coordinates without resolving the old private artifacts. */
 public class MigrateMavenCoordinates extends Recipe {
     private static final Properties RELEASES = releases();
+    private static final Set<String> UETLIB_GROUPS = Set.of("ch.ubique", "ch.ubique.uetlib");
+    private static final String INTERNAL_GROUP = "ch.ubique.internal";
+    // Public parents and the Ubique-internal wrappers that replace them outside uetlib.
+    private static final Map<String, String> INTERNAL_PARENTS =
+            Map.of(
+                    "uetlib-parent", "ubique-library-parent",
+                    "uetlib-spring-boot-starter-parent", "ubique-spring-boot-starter-parent");
+    private static final XPathMatcher PROJECT_PARENT = new XPathMatcher("/project/parent");
 
     private static Properties releases() {
         Properties versions = new Properties();
@@ -39,7 +50,25 @@ public class MigrateMavenCoordinates extends Recipe {
 
     @Override
     public String getDescription() {
-        return "Move known uetlib artifacts to ch.ubique.uetlib and the first public migration releases, including parents, BOMs and processor paths.";
+        return "Move known uetlib artifacts to ch.ubique.uetlib and the first public migration releases, including parents, BOMs and processor paths. Projects outside uetlib move their uetlib parent to the matching Ubique-internal parent.";
+    }
+
+    /**
+     * Uetlib's own projects ({@code ch.ubique[.uetlib]:uetlib-*}) and the internal wrapper parents
+     * keep the public parents. The groupId may be inherited from the parent.
+     */
+    private static boolean isInternalConsumer(Xml.Tag project) {
+        String artifact = project.getChildValue("artifactId").orElse("");
+        String group =
+                project.getChildValue("groupId")
+                        .or(
+                                () ->
+                                        project.getChild("parent")
+                                                .flatMap(p -> p.getChildValue("groupId")))
+                        .orElse("");
+        boolean uetlib = UETLIB_GROUPS.contains(group) && artifact.startsWith("uetlib-");
+        boolean wrapper = INTERNAL_GROUP.equals(group) && INTERNAL_PARENTS.containsValue(artifact);
+        return !uetlib && !wrapper;
     }
 
     @Override
@@ -79,6 +108,31 @@ public class MigrateMavenCoordinates extends Recipe {
                             if (content.size() != updated.getContent().size()) {
                                 updated = updated.withContent(content);
                             }
+                        }
+                        String group = updated.getChildValue("groupId").orElse(null);
+                        String internalParent =
+                                INTERNAL_PARENTS.get(
+                                        updated.getChildValue("artifactId").orElse(""));
+                        if (internalParent != null
+                                && UETLIB_GROUPS.contains(group)
+                                && PROJECT_PARENT.matches(getCursor())
+                                && isInternalConsumer(
+                                        getCursor()
+                                                .firstEnclosingOrThrow(Xml.Document.class)
+                                                .getRoot())) {
+                            updated =
+                                    updated.withChildValue("groupId", INTERNAL_GROUP)
+                                            .withChildValue("artifactId", internalParent);
+                            // Wrapper versions equal the public versions they wrap, so
+                            // intermediate ch.ubique.uetlib parents keep their version.
+                            if ("ch.ubique".equals(group)
+                                    && updated.getChild("version").isPresent()) {
+                                updated =
+                                        updated.withChildValue(
+                                                "version",
+                                                RELEASES.getProperty("internal." + internalParent));
+                            }
+                            return updated;
                         }
                         if ("dependency".equals(updated.getName())
                                 && "ch.ubique.datatrans"
