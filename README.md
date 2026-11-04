@@ -2,7 +2,7 @@
 
 Versioned OpenRewrite migration recipes for [uetlib](https://github.com/UbiqueInnovation/uetlib).
 
-Maven coordinates: `ch.ubique.uetlib:uetlib-rewrite`.
+Maven coordinates: `ch.uetlib:uetlib-rewrite`.
 
 ## Recipes
 
@@ -46,7 +46,7 @@ Then, from a consumer's Maven project, preview the migration:
 
 ```sh
 mvn org.openrewrite.maven:rewrite-maven-plugin:6.46.1:dryRun \
-  -Drewrite.recipeArtifactCoordinates=ch.ubique.uetlib:uetlib-rewrite:0.1.0-SNAPSHOT \
+  -Drewrite.recipeArtifactCoordinates=ch.uetlib:uetlib-rewrite:0.1.0-SNAPSHOT \
   -Drewrite.activeRecipes=ch.ubique.uetlib.MigrateToPublicUetlib
 ```
 
@@ -56,14 +56,14 @@ The combined recipe migrates known Maven coordinates and pins existing version e
 
 ### Ubique-internal parents
 
-Projects outside uetlib move only their `<project><parent>` to the Ubique-internal wrapper parents; uetlib libraries and BOMs still move to `ch.ubique.uetlib`:
+Projects outside uetlib move only their `<project><parent>` to the Ubique-internal wrapper parents; uetlib libraries and BOMs move to `ch.uetlib`:
 
-| Parent (`ch.ubique` or `ch.ubique.uetlib`) | Ubique-internal parent |
+| Parent (`ch.ubique`, `ch.ubique.uetlib` or `ch.uetlib`) | Ubique-internal parent |
 | --- | --- |
 | `uetlib-parent` | `ch.ubique.internal:ubique-library-parent` |
 | `uetlib-spring-boot-starter-parent` | `ch.ubique.internal:ubique-spring-boot-starter-parent` |
 
-Wrapper versions equal the public parent versions they wrap. Original `ch.ubique` parents are pinned to the first migration release (`2026.11.0` and `4.1.1-2026.11.0`); intermediate `ch.ubique.uetlib` parents keep their version. Uetlib's own projects (`ch.ubique` or `ch.ubique.uetlib` groupId, own or inherited, with a `uetlib-*` artifactId) and the wrapper parents themselves keep the public parents.
+Wrapper versions equal the public parent versions they wrap. Original `ch.ubique` parents are pinned to the first migration release (`2026.11.0` and `4.1.1-2026.11.0`); intermediate `ch.ubique.uetlib` parents keep their version. Uetlib's own projects (`ch.ubique`, `ch.ubique.uetlib` or `ch.uetlib` groupId, own or inherited, with a `uetlib-*` artifactId) and the wrapper parents themselves keep the public parents.
 
 ### Renovate
 
@@ -83,6 +83,6 @@ mvn verify
 Apache License 2.0; see [LICENSE](LICENSE).
 
 The public migration also replaces the former Datatrans model/service dependencies
-with `ch.ubique.uetlib:uetlib-payment-datatrans:3.0.0` and moves
+with `ch.uetlib:uetlib-payment-datatrans:3.0.0` and moves
 `ch.ubique.datatrans` Java packages to `ch.ubique.uetlib.payment.datatrans.client`.
 Datatrans credential property names stay unchanged.
