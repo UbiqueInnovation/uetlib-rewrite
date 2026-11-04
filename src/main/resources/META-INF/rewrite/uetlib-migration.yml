@@ -1,25 +1,29 @@
 ---
 type: specs.openrewrite.org/v1beta/recipe
-name: ch.ubique.uetlib.MigratePackages
+name: ch.uetlib.MigratePackages
 displayName: Migrate uetlib Java packages
 description: Move legacy and intermediate uetlib Java types to module-owned namespaces, updating class-name strings and resource references while preserving configuration keys.
 recipeList:
   - org.openrewrite.java.ChangePackage:
+      oldPackageName: ch.ubique.uetlib
+      newPackageName: ch.uetlib
+      recursive: true
+  - org.openrewrite.java.ChangePackage:
       oldPackageName: ch.ubique.backend
-      newPackageName: ch.ubique.uetlib
+      newPackageName: ch.uetlib
       recursive: true
   - org.openrewrite.java.ChangePackage:
       oldPackageName: ch.ubique.datatrans
-      newPackageName: ch.ubique.uetlib.payment.datatrans.client
+      newPackageName: ch.uetlib.payment.datatrans.client
       recursive: true
-  - ch.ubique.uetlib.rewrite.MigrateOwnedTypes
-  - ch.ubique.uetlib.rewrite.MigrateClassReferences
-  - ch.ubique.uetlib.rewrite.MigrateResourceReferences
+  - ch.uetlib.rewrite.MigrateOwnedTypes
+  - ch.uetlib.rewrite.MigrateClassReferences
+  - ch.uetlib.rewrite.MigrateResourceReferences
 ---
 type: specs.openrewrite.org/v1beta/recipe
-name: ch.ubique.uetlib.MigrateToPublicUetlib
+name: ch.uetlib.MigrateToPublicUetlib
 displayName: Migrate to public uetlib releases
 description: Update Maven coordinates and release versions, Java packages and resource references for the first public uetlib releases. Projects outside uetlib move their uetlib parent to the Ubique-internal parent.
 recipeList:
-  - ch.ubique.uetlib.rewrite.MigrateMavenCoordinates
-  - ch.ubique.uetlib.MigratePackages
+  - ch.uetlib.rewrite.MigrateMavenCoordinates
+  - ch.uetlib.MigratePackages

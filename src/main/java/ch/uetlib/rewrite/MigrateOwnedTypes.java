@@ -1,4 +1,4 @@
-package ch.ubique.uetlib.rewrite;
+package ch.uetlib.rewrite;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +18,7 @@ public class MigrateOwnedTypes extends Recipe {
         Properties properties = new Properties();
         try (InputStream input =
                 MigrateOwnedTypes.class.getResourceAsStream(
-                        "/ch/ubique/uetlib/rewrite/type-migrations.properties")) {
+                        "/ch/uetlib/rewrite/type-migrations.properties")) {
             if (input == null) throw new IllegalStateException("Missing uetlib type migrations");
             properties.load(input);
         } catch (IOException exception) {

@@ -1,4 +1,4 @@
-package ch.ubique.uetlib.rewrite;
+package ch.uetlib.rewrite;
 
 import java.util.Map;
 import java.util.Set;
@@ -14,27 +14,29 @@ import org.openrewrite.java.tree.JavaType;
 /** Moves class-name strings and package-scanning annotations without renaming property keys. */
 public class MigrateClassReferences extends Recipe {
     static final String OLD = "ch.ubique.backend";
-    static final String NEW = "ch.ubique.uetlib";
+    static final String NEW = "ch.uetlib";
     static final String CLIENT_OLD = "ch.ubique.datatrans";
-    static final String CLIENT_NEW = "ch.ubique.uetlib.payment.datatrans.client";
+    static final String CLIENT_NEW = "ch.uetlib.payment.datatrans.client";
 
     // Only unambiguous package roots can be mapped in scanning/logging strings.
     private static final Map<String, String> OWNED_PACKAGES =
             Map.of(
-                    "ch.ubique.uetlib.security", "ch.ubique.uetlib.spring.boot.security",
-                    "ch.ubique.uetlib.cloud", "ch.ubique.uetlib.spring.cloud",
-                    "ch.ubique.uetlib.spring.validation", "ch.ubique.uetlib.spring.boot.validation",
-                    "ch.ubique.uetlib.test.enabledif",
-                            "ch.ubique.uetlib.spring.boot.test.enabledif",
-                    "ch.ubique.uetlib.image.blurhash", "ch.ubique.uetlib.core.image.blurhash",
-                    "ch.ubique.uetlib.image.util", "ch.ubique.uetlib.core.image.util",
-                    "ch.ubique.uetlib.geodb", "ch.ubique.uetlib.geo.db",
-                    "ch.ubique.uetlib.geojob", "ch.ubique.uetlib.geo.job",
-                    "ch.ubique.uetlib.storage.spring", "ch.ubique.uetlib.storage.spring.boot",
-                    "ch.ubique.uetlib.image.webp", "ch.ubique.uetlib.webp");
+                    "ch.uetlib.security", "ch.uetlib.spring.boot.security",
+                    "ch.uetlib.cloud", "ch.uetlib.spring.cloud",
+                    "ch.uetlib.spring.validation", "ch.uetlib.spring.boot.validation",
+                    "ch.uetlib.test.enabledif", "ch.uetlib.spring.boot.test.enabledif",
+                    "ch.uetlib.image.blurhash", "ch.uetlib.core.image.blurhash",
+                    "ch.uetlib.image.util", "ch.uetlib.core.image.util",
+                    "ch.uetlib.geodb", "ch.uetlib.geo.db",
+                    "ch.uetlib.geojob", "ch.uetlib.geo.job",
+                    "ch.uetlib.storage.spring", "ch.uetlib.storage.spring.boot",
+                    "ch.uetlib.image.webp", "ch.uetlib.webp");
 
     static String packages(String text) {
-        String migrated = text.replace(OLD, NEW).replace(CLIENT_OLD, CLIENT_NEW);
+        String migrated =
+                text.replace("ch.ubique.uetlib", NEW)
+                        .replace(OLD, NEW)
+                        .replace(CLIENT_OLD, CLIENT_NEW);
         Matcher matcher = REFERENCE.matcher(migrated);
         StringBuilder result = new StringBuilder();
         while (matcher.find()) {
@@ -67,7 +69,8 @@ public class MigrateClassReferences extends Recipe {
     }
 
     private static final Pattern REFERENCE =
-            Pattern.compile("\\bch\\.ubique\\.(?:backend|datatrans|uetlib)(?=\\.)[\\w.$]*");
+            Pattern.compile(
+                    "\\bch\\.(?:ubique\\.(?:backend|datatrans|uetlib)|uetlib)(?=\\.)[\\w.$]*");
     private static final Set<String> SCANNING =
             Set.of(
                     "ComponentScan",
@@ -124,7 +127,8 @@ public class MigrateClassReferences extends Recipe {
                 if (!(updated.getValue() instanceof String text)
                         || !(text.contains(OLD)
                                 || text.contains(CLIENT_OLD)
-                                || text.contains(NEW))) {
+                                || text.contains(NEW)
+                                || text.contains("ch.ubique.uetlib"))) {
                     return updated;
                 }
                 J.Annotation annotation = getCursor().firstEnclosing(J.Annotation.class);
