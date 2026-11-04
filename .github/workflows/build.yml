@@ -8,6 +8,7 @@ permissions:
 jobs:
   build:
     name: Build Project
-    uses: UbiqueInnovation/uetlib/.github/workflows/mvn-install.yml@ad1a60bc91bd02516b4dc61def5495e84e1d61a5 # v0.1.0
+    uses: UbiqueInnovation/uetlib/.github/workflows/mvn-install.yml@3280f1bdd7981d9feeae2822518ec66286996cc6 # v0.2.1
     with:
       java-version: '17'
+    secrets: inherit

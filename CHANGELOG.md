@@ -2,7 +2,7 @@
 
 ## 0.1.0 (unreleased)
 
-- Move the `uetlib-parent` and `uetlib-spring-boot-starter-parent` parents of projects outside uetlib to `ch.ubique.internal:ubique-library-parent` and `ch.ubique.internal:ubique-spring-boot-starter-parent`. Uetlib projects keep the public parents, and uetlib libraries/BOMs still move to `ch.ubique.uetlib`.
+- Move the `uetlib-parent` and `uetlib-spring-boot-starter-parent` parents of projects outside uetlib to `ch.ubique.internal:ubique-library-parent` and `ch.ubique.internal:ubique-spring-boot-starter-parent`. Uetlib projects keep the public parents, and uetlib libraries/BOMs move to `ch.uetlib`.
 
 - Migrate geo DB/job, Spring storage and standalone WebP packages from both original and intermediate namespaces.
 

@@ -19,7 +19,8 @@ import org.openrewrite.xml.tree.Xml;
 /** Updates known uetlib coordinates without resolving the old private artifacts. */
 public class MigrateMavenCoordinates extends Recipe {
     private static final Properties RELEASES = releases();
-    private static final Set<String> UETLIB_GROUPS = Set.of("ch.ubique", "ch.ubique.uetlib");
+    private static final Set<String> UETLIB_GROUPS =
+            Set.of("ch.ubique", "ch.ubique.uetlib", "ch.uetlib");
     private static final String INTERNAL_GROUP = "ch.ubique.internal";
     // Public parents and the Ubique-internal wrappers that replace them outside uetlib.
     private static final Map<String, String> INTERNAL_PARENTS =
@@ -50,7 +51,7 @@ public class MigrateMavenCoordinates extends Recipe {
 
     @Override
     public String getDescription() {
-        return "Move known uetlib artifacts to ch.ubique.uetlib and the first public migration releases, including parents, BOMs and processor paths. Projects outside uetlib move their uetlib parent to the matching Ubique-internal parent.";
+        return "Move known uetlib artifacts to ch.uetlib and the first public migration releases, including parents, BOMs and processor paths. Projects outside uetlib move their uetlib parent to the matching Ubique-internal parent.";
     }
 
     /**
@@ -87,7 +88,7 @@ public class MigrateMavenCoordinates extends Recipe {
                             java.util.List<Content> content = new ArrayList<>();
                             for (Content child : updated.getContent()) {
                                 if (child instanceof Xml.Tag dependency
-                                        && "ch.ubique.uetlib"
+                                        && "ch.uetlib"
                                                 .equals(
                                                         dependency
                                                                 .getChildValue("groupId")
@@ -142,7 +143,7 @@ public class MigrateMavenCoordinates extends Recipe {
                                                 "datatrans-api-client-service")
                                         .contains(updated.getChildValue("artifactId").orElse(""))) {
                             updated =
-                                    updated.withChildValue("groupId", "ch.ubique.uetlib")
+                                    updated.withChildValue("groupId", "ch.uetlib")
                                             .withChildValue(
                                                     "artifactId", "uetlib-payment-datatrans");
                             if (updated.getChild("version").isPresent()) {
@@ -153,7 +154,8 @@ public class MigrateMavenCoordinates extends Recipe {
                             }
                             return updated;
                         }
-                        if (!"ch.ubique".equals(updated.getChildValue("groupId").orElse(null))) {
+                        if (!Set.of("ch.ubique", "ch.ubique.uetlib")
+                                .contains(updated.getChildValue("groupId").orElse(""))) {
                             return updated;
                         }
                         String artifact = updated.getChildValue("artifactId").orElse("");
@@ -161,8 +163,8 @@ public class MigrateMavenCoordinates extends Recipe {
                         if (version == null) {
                             return updated;
                         }
-                        updated = updated.withChildValue("groupId", "ch.ubique.uetlib");
-                        if (updated.getChild("version").isPresent()) {
+                        updated = updated.withChildValue("groupId", "ch.uetlib");
+                        if ("ch.ubique".equals(group) && updated.getChild("version").isPresent()) {
                             updated = updated.withChildValue("version", version);
                         }
                         return updated;
