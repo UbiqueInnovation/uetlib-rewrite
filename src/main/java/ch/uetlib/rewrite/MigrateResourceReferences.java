@@ -1,4 +1,4 @@
-package ch.ubique.uetlib.rewrite;
+package ch.uetlib.rewrite;
 
 import java.nio.file.Path;
 import java.util.regex.Pattern;

@@ -1,4 +1,4 @@
-package ch.ubique.uetlib.rewrite;
+package ch.uetlib.rewrite;
 
 import static org.openrewrite.java.Assertions.java;
 import static org.openrewrite.xml.Assertions.xml;
@@ -10,7 +10,7 @@ import org.openrewrite.test.RewriteTest;
 class MigrateToPublicUetlibTest implements RewriteTest {
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipeFromResources("ch.ubique.uetlib.MigrateToPublicUetlib");
+        spec.recipeFromResources("ch.uetlib.MigrateToPublicUetlib");
     }
 
     @Test
@@ -22,7 +22,7 @@ class MigrateToPublicUetlibTest implements RewriteTest {
                         spec -> spec.path("pom.xml")),
                 java(
                         "package ch.ubique.backend.example; class Example {}",
-                        "package ch.ubique.uetlib.example; class Example {}"));
+                        "package ch.uetlib.example; class Example {}"));
     }
 
     @Test

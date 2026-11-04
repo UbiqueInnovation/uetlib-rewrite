@@ -1,4 +1,4 @@
-package ch.ubique.uetlib.rewrite;
+package ch.uetlib.rewrite;
 
 import static org.openrewrite.java.Assertions.java;
 import static org.openrewrite.test.SourceSpecs.text;
@@ -10,7 +10,20 @@ import org.openrewrite.test.RewriteTest;
 class MigrateReferencesTest implements RewriteTest {
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipeFromResources("ch.ubique.uetlib.MigratePackages");
+        spec.recipeFromResources("ch.uetlib.MigratePackages");
+    }
+
+    @Test
+    void migratesIntermediateClassNamesInPropertiesAndPreservesKeys() {
+        rewriteRun(
+                text(
+                        "ch.ubique.uetlib.job.enabled=true\nhandler=ch.ubique.uetlib.job.TestJob\n",
+                        "ch.ubique.uetlib.job.enabled=true\nhandler=ch.uetlib.job.TestJob\n",
+                        spec -> spec.path("src/main/resources/application.properties")),
+                text(
+                        "handler=ch.ubique.uetlib.core.Example\n",
+                        "handler=ch.uetlib.core.Example\n",
+                        spec -> spec.path("src/main/resources/custom.properties")));
     }
 
     @Test
@@ -28,7 +41,7 @@ class MigrateReferencesTest implements RewriteTest {
                 package example;
                 class Config {
                     String property = "ch.ubique.backend.job.enabled";
-                    String type = "ch.ubique.uetlib.job.TestJob";
+                    String type = "ch.uetlib.job.TestJob";
                 }
                 """));
     }
@@ -46,10 +59,10 @@ class MigrateReferencesTest implements RewriteTest {
                 class Config {}
                 """,
                         """
-                package ch.ubique.uetlib.example;
+                package ch.uetlib.example;
                 @interface ComponentScan { String value(); }
                 @interface ConfigurationProperties { String prefix(); }
-                @ComponentScan("ch.ubique.uetlib.job")
+                @ComponentScan("ch.uetlib.job")
                 @ConfigurationProperties(prefix = "ch.ubique.backend.job")
                 class Config {}
                 """));
@@ -60,7 +73,7 @@ class MigrateReferencesTest implements RewriteTest {
         rewriteRun(
                 text(
                         "ch.ubique.backend.core.Provider\n",
-                        "ch.ubique.uetlib.core.Provider\n",
+                        "ch.uetlib.core.Provider\n",
                         spec ->
                                 spec.path(
                                                 "src/main/resources/META-INF/services/ch.ubique.backend.core.Service")
@@ -68,7 +81,7 @@ class MigrateReferencesTest implements RewriteTest {
                                                 source ->
                                                         org.junit.jupiter.api.Assertions
                                                                 .assertEquals(
-                                                                        "src/main/resources/META-INF/services/ch.ubique.uetlib.core.Service",
+                                                                        "src/main/resources/META-INF/services/ch.uetlib.core.Service",
                                                                         source.getSourcePath()
                                                                                 .toString()))));
     }
@@ -78,13 +91,13 @@ class MigrateReferencesTest implements RewriteTest {
         rewriteRun(
                 text(
                         "ch.ubique.backend.spring.Config\n",
-                        "ch.ubique.uetlib.spring.Config\n",
+                        "ch.uetlib.spring.Config\n",
                         spec ->
                                 spec.path(
                                         "src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")),
                 text(
                         "handler=ch.ubique.backend.job.TestJob\nch.ubique.backend.job.enabled=true\n",
-                        "handler=ch.ubique.uetlib.job.TestJob\nch.ubique.backend.job.enabled=true\n",
+                        "handler=ch.uetlib.job.TestJob\nch.ubique.backend.job.enabled=true\n",
                         spec -> spec.path("src/main/resources/application.properties")));
     }
 
@@ -93,7 +106,7 @@ class MigrateReferencesTest implements RewriteTest {
         rewriteRun(
                 text(
                         "package ch.ubique.backend.wire;\noption java_package = \"ch.ubique.backend.geo.protobuf\";\n",
-                        "package ch.ubique.backend.wire;\noption java_package = \"ch.ubique.uetlib.geo.protobuf\";\n",
+                        "package ch.ubique.backend.wire;\noption java_package = \"ch.uetlib.geo.protobuf\";\n",
                         spec -> spec.path("src/main/proto/example.proto")));
     }
 
@@ -102,7 +115,7 @@ class MigrateReferencesTest implements RewriteTest {
         rewriteRun(
                 text(
                         "<configuration><logger name=\"ch.ubique.backend.job\"/><property value=\"${ch.ubique.backend.job.enabled}\"/></configuration>",
-                        "<configuration><logger name=\"ch.ubique.uetlib.job\"/><property value=\"${ch.ubique.backend.job.enabled}\"/></configuration>",
+                        "<configuration><logger name=\"ch.uetlib.job\"/><property value=\"${ch.ubique.backend.job.enabled}\"/></configuration>",
                         spec -> spec.path("src/main/resources/logback-spring.xml")));
     }
 
@@ -118,15 +131,15 @@ class MigrateReferencesTest implements RewriteTest {
             }
             """,
                         """
-            package ch.ubique.uetlib.payment.datatrans.client.model;
+            package ch.uetlib.payment.datatrans.client.model;
             class Transaction {
-                String type = "ch.ubique.uetlib.payment.datatrans.client.model.Transaction";
+                String type = "ch.uetlib.payment.datatrans.client.model.Transaction";
                 String property = "${ch.ubique.datatrans.merchant-id}";
             }
             """),
                 text(
                         "ch.ubique.datatrans.service.autoconfigure.DatatransApiClientAutoConfiguration\n",
-                        "ch.ubique.uetlib.payment.datatrans.client.service.autoconfigure.DatatransApiClientAutoConfiguration\n",
+                        "ch.uetlib.payment.datatrans.client.service.autoconfigure.DatatransApiClientAutoConfiguration\n",
                         spec ->
                                 spec.path(
                                         "src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")));
@@ -143,7 +156,7 @@ class MigrateReferencesTest implements RewriteTest {
             """,
                         """
             class Logging {
-                static final String LOGGER_NAME = "ch.ubique.uetlib.payment.postfinance.http";
+                static final String LOGGER_NAME = "ch.uetlib.payment.postfinance.http";
             }
             """));
     }

@@ -8,8 +8,8 @@ Maven coordinates: `ch.uetlib:uetlib-rewrite`.
 
 | Recipe | Purpose |
 | --- | --- |
-| `ch.ubique.uetlib.MigratePackages` | Move Java packages, class-name strings and resource registrations while preserving property keys. |
-| `ch.ubique.uetlib.MigrateToPublicUetlib` | Also migrate Maven parents, BOMs and dependencies to the documented public release versions. |
+| `ch.uetlib.MigratePackages` | Move Java packages, class-name strings and resource registrations while preserving property keys. |
+| `ch.uetlib.MigrateToPublicUetlib` | Also migrate Maven parents, BOMs and dependencies to the documented public release versions. |
 
 The package move is part of the upcoming public major releases. These recipes are not published yet; run them only when the target library releases are available.
 
@@ -18,7 +18,7 @@ The package recipe changes Java declarations, imports, qualified references and 
 ## Module ownership moves
 
 The package recipe also relocates the 99 known production types listed in
-[`type-migrations.properties`](src/main/resources/ch/ubique/uetlib/rewrite/type-migrations.properties)
+[`type-migrations.properties`](src/main/resources/ch/uetlib/rewrite/type-migrations.properties)
 and their public nested types. It handles both `ch.ubique.backend.*` and the intermediate
 `ch.ubique.uetlib.*` names, including imports, source paths, supported reflection
 strings and Spring/service registrations. Core image helpers move under `core.image`,
@@ -47,8 +47,12 @@ Then, from a consumer's Maven project, preview the migration:
 ```sh
 mvn org.openrewrite.maven:rewrite-maven-plugin:6.46.1:dryRun \
   -Drewrite.recipeArtifactCoordinates=ch.uetlib:uetlib-rewrite:0.1.0-SNAPSHOT \
-  -Drewrite.activeRecipes=ch.ubique.uetlib.MigrateToPublicUetlib
+  -Drewrite.activeRecipes=ch.uetlib.MigrateToPublicUetlib
 ```
+
+Once published, use `ch.uetlib:uetlib-rewrite:RELEASE` with `mvn -U` to resolve the latest non-snapshot recipe, or pin a version for repeatable migrations.
+
+The resource migration includes `application.properties` and other `.properties`, YAML and XML files: class-name values are updated while configuration keys remain unchanged.
 
 Review `target/rewrite/rewrite.patch`. To apply it, replace `:dryRun` with `:run`, then build and test the application. Installing the recipe locally does not publish it to Maven Central.
 
@@ -84,5 +88,5 @@ Apache License 2.0; see [LICENSE](LICENSE).
 
 The public migration also replaces the former Datatrans model/service dependencies
 with `ch.uetlib:uetlib-payment-datatrans:3.0.0` and moves
-`ch.ubique.datatrans` Java packages to `ch.ubique.uetlib.payment.datatrans.client`.
+`ch.ubique.datatrans` Java packages to `ch.uetlib.payment.datatrans.client`.
 Datatrans credential property names stay unchanged.

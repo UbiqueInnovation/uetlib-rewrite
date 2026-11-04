@@ -1,4 +1,4 @@
-package ch.ubique.uetlib.rewrite;
+package ch.uetlib.rewrite;
 
 import static org.openrewrite.xml.Assertions.xml;
 

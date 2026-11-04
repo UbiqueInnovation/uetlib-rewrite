@@ -1,4 +1,4 @@
-package ch.ubique.uetlib.rewrite;
+package ch.uetlib.rewrite;
 
 import static org.openrewrite.java.Assertions.java;
 
@@ -9,7 +9,36 @@ import org.openrewrite.test.RewriteTest;
 class MigratePackagesTest implements RewriteTest {
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipeFromResources("ch.ubique.uetlib.MigratePackages");
+        spec.recipeFromResources("ch.uetlib.MigratePackages");
+    }
+
+    @Test
+    void migratesIntermediateNamespaceAndClassReferences() {
+        rewriteRun(
+                java(
+                        """
+                        package ch.ubique.uetlib.core;
+                        public class Example {
+                            String type = "ch.ubique.uetlib.core.Example";
+                        }
+                        """,
+                        """
+                        package ch.uetlib.core;
+                        public class Example {
+                            String type = "ch.uetlib.core.Example";
+                        }
+                        """),
+                java(
+                        """
+                        package example;
+                        import ch.ubique.uetlib.core.Example;
+                        class Consumer { Example value; }
+                        """,
+                        """
+                        package example;
+                        import ch.uetlib.core.Example;
+                        class Consumer { Example value; }
+                        """));
     }
 
     @Test
@@ -22,7 +51,7 @@ class MigratePackagesTest implements RewriteTest {
                 public class Example {}
                 """,
                         """
-                package ch.ubique.uetlib.core;
+                package ch.uetlib.core;
 
                 public class Example {}
                 """,
@@ -32,7 +61,7 @@ class MigratePackagesTest implements RewriteTest {
                                                 source ->
                                                         org.junit.jupiter.api.Assertions
                                                                 .assertEquals(
-                                                                        "src/main/java/ch/ubique/uetlib/core/Example.java",
+                                                                        "src/main/java/ch/uetlib/core/Example.java",
                                                                         source.getSourcePath()
                                                                                 .toString()))));
     }
@@ -46,7 +75,7 @@ class MigratePackagesTest implements RewriteTest {
                         public class Example {}
                         """,
                         """
-                        package ch.ubique.uetlib.core;
+                        package ch.uetlib.core;
                         public class Example {}
                         """),
                 java(
@@ -60,10 +89,10 @@ class MigratePackagesTest implements RewriteTest {
                         """,
                         """
                         package example;
-                        import ch.ubique.uetlib.core.Example;
+                        import ch.uetlib.core.Example;
                         class Consumer {
                             Example value;
-                            ch.ubique.uetlib.core.Example qualified;
+                            ch.uetlib.core.Example qualified;
                         }
                         """));
     }
@@ -72,7 +101,7 @@ class MigratePackagesTest implements RewriteTest {
     void leavesUnrelatedAndAlreadyMigratedPackagesUnchanged() {
         rewriteRun(
                 java("package ch.ubique.backendother; class Unrelated {}"),
-                java("package ch.ubique.uetlib.core; class Migrated {}"),
+                java("package ch.uetlib.core; class Migrated {}"),
                 java("package example; class Application {}"));
     }
 }

@@ -1,4 +1,4 @@
-package ch.ubique.uetlib.rewrite;
+package ch.uetlib.rewrite;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +33,7 @@ public class MigrateMavenCoordinates extends Recipe {
         Properties versions = new Properties();
         try (InputStream stream =
                 MigrateMavenCoordinates.class.getResourceAsStream(
-                        "/ch/ubique/uetlib/rewrite/migration-versions.properties")) {
+                        "/ch/uetlib/rewrite/migration-versions.properties")) {
             if (stream == null) {
                 throw new IllegalStateException("Missing uetlib migration release map");
             }
