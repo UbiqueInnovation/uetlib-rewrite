@@ -78,7 +78,7 @@ class MigrateOwnedTypesTest implements RewriteTest {
     }
 
     @Test
-    void movesNestedTypesAndReflectionStringsWithoutChangingProperties() {
+    void movesNestedTypesReflectionStringsAndKnownProperties() {
         rewriteRun(
                 java(
                         """
@@ -107,7 +107,7 @@ class MigrateOwnedTypesTest implements RewriteTest {
                         class Config {
                             Frame.BufferedImageFrame frame;
                             String type = "ch.uetlib.core.image.webp.Frame$BufferedImageFrame";
-                            String property = "${ch.ubique.backend.spring.boot.http.enabled}";
+                            String property = "${ch.uetlib.spring.boot.http.enabled}";
                         }
                         """));
     }
@@ -171,7 +171,7 @@ class MigrateOwnedTypesTest implements RewriteTest {
                             String coreImageType = "ch.uetlib.core.image.webp.Frame$PathFrame";
                             String storageType = "ch.uetlib.storage.spring.boot.proxy.StorageProxyAutoConfiguration";
                             String alreadyMigrated = "ch.uetlib.storage.spring.boot.proxy.StorageProxyAutoConfiguration";
-                            String property = "${ch.ubique.backend.storage.spring.enabled}";
+                            String property = "${ch.uetlib.storage.spring.enabled}";
                         }
                         """),
                 text(

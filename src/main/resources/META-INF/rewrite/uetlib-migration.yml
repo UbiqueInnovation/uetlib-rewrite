@@ -5,6 +5,10 @@ displayName: Migrate uetlib Java packages
 description: Move legacy and intermediate uetlib Java types to module-owned namespaces, updating class-name strings and resource references while preserving configuration keys.
 recipeList:
   - org.openrewrite.java.ChangePackage:
+      oldPackageName: com.den_4.inotify_java
+      newPackageName: ch.uetlib.inotify
+      recursive: true
+  - org.openrewrite.java.ChangePackage:
       oldPackageName: ch.ubique.uetlib
       newPackageName: ch.uetlib
       recursive: true
@@ -16,6 +20,10 @@ recipeList:
       oldPackageName: ch.ubique.datatrans
       newPackageName: ch.uetlib.payment.datatrans.client
       recursive: true
+  - org.openrewrite.java.ChangePackage:
+      oldPackageName: ch.uetlib.spring.boot.geo
+      newPackageName: ch.uetlib.geo.spring.boot
+      recursive: true
   - ch.uetlib.rewrite.MigrateOwnedTypes
   - ch.uetlib.rewrite.MigrateClassReferences
   - ch.uetlib.rewrite.MigrateResourceReferences
@@ -26,4 +34,5 @@ displayName: Migrate to public uetlib releases
 description: Update Maven coordinates and release versions, Java packages and resource references for the first public uetlib releases. Projects outside uetlib move their uetlib parent to the Ubique-internal parent.
 recipeList:
   - ch.uetlib.rewrite.MigrateMavenCoordinates
+  - ch.uetlib.rewrite.MigrateConfigurationProperties
   - ch.uetlib.MigratePackages
