@@ -15,28 +15,31 @@ import org.openrewrite.java.tree.JavaType;
 public class MigrateClassReferences extends Recipe {
     static final String OLD = "ch.ubique.backend";
     static final String NEW = "ch.uetlib";
+    static final String INOTIFY_OLD = "com.den_4.inotify_java";
     static final String CLIENT_OLD = "ch.ubique.datatrans";
     static final String CLIENT_NEW = "ch.uetlib.payment.datatrans.client";
 
     // Only unambiguous package roots can be mapped in scanning/logging strings.
     private static final Map<String, String> OWNED_PACKAGES =
-            Map.of(
-                    "ch.uetlib.security", "ch.uetlib.spring.boot.security",
-                    "ch.uetlib.cloud", "ch.uetlib.spring.cloud",
-                    "ch.uetlib.spring.validation", "ch.uetlib.spring.boot.validation",
-                    "ch.uetlib.test.enabledif", "ch.uetlib.spring.boot.test.enabledif",
-                    "ch.uetlib.image.blurhash", "ch.uetlib.core.image.blurhash",
-                    "ch.uetlib.image.util", "ch.uetlib.core.image.util",
-                    "ch.uetlib.geodb", "ch.uetlib.geo.db",
-                    "ch.uetlib.geojob", "ch.uetlib.geo.job",
-                    "ch.uetlib.storage.spring", "ch.uetlib.storage.spring.boot",
-                    "ch.uetlib.image.webp", "ch.uetlib.webp");
+            Map.ofEntries(
+                    Map.entry("ch.uetlib.security", "ch.uetlib.spring.boot.security"),
+                    Map.entry("ch.uetlib.cloud", "ch.uetlib.spring.cloud"),
+                    Map.entry("ch.uetlib.spring.validation", "ch.uetlib.spring.boot.validation"),
+                    Map.entry("ch.uetlib.test.enabledif", "ch.uetlib.spring.boot.test.enabledif"),
+                    Map.entry("ch.uetlib.image.blurhash", "ch.uetlib.core.image.blurhash"),
+                    Map.entry("ch.uetlib.image.util", "ch.uetlib.core.image.util"),
+                    Map.entry("ch.uetlib.geodb", "ch.uetlib.geo.db"),
+                    Map.entry("ch.uetlib.geojob", "ch.uetlib.geo.job"),
+                    Map.entry("ch.uetlib.storage.spring", "ch.uetlib.storage.spring.boot"),
+                    Map.entry("ch.uetlib.image.webp", "ch.uetlib.webp"),
+                    Map.entry("ch.uetlib.spring.boot.geo", "ch.uetlib.geo.spring.boot"));
 
     static String packages(String text) {
         String migrated =
                 text.replace("ch.ubique.uetlib", NEW)
                         .replace(OLD, NEW)
-                        .replace(CLIENT_OLD, CLIENT_NEW);
+                        .replace(CLIENT_OLD, CLIENT_NEW)
+                        .replaceAll("\\bcom\\.den_4\\.inotify_java(?=\\W|$)", "ch.uetlib.inotify");
         Matcher matcher = REFERENCE.matcher(migrated);
         StringBuilder result = new StringBuilder();
         while (matcher.find()) {
@@ -70,7 +73,7 @@ public class MigrateClassReferences extends Recipe {
 
     private static final Pattern REFERENCE =
             Pattern.compile(
-                    "\\bch\\.(?:ubique\\.(?:backend|datatrans|uetlib)|uetlib)(?=\\.)[\\w.$]*");
+                    "\\b(?:ch\\.(?:ubique\\.(?:backend|datatrans|uetlib)|uetlib)|com\\.den_4\\.inotify_java)(?=\\.)[\\w.$]*");
     private static final Set<String> SCANNING =
             Set.of(
                     "ComponentScan",
@@ -128,7 +131,8 @@ public class MigrateClassReferences extends Recipe {
                         || !(text.contains(OLD)
                                 || text.contains(CLIENT_OLD)
                                 || text.contains(NEW)
-                                || text.contains("ch.ubique.uetlib"))) {
+                                || text.contains("ch.ubique.uetlib")
+                                || text.contains(INOTIFY_OLD))) {
                     return updated;
                 }
                 J.Annotation annotation = getCursor().firstEnclosing(J.Annotation.class);

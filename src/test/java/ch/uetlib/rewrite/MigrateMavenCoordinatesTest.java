@@ -7,6 +7,29 @@ import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
 
 class MigrateMavenCoordinatesTest implements RewriteTest {
+    @Test
+    void upgradesExistingPublicArtifactsForTheNewConfigurationApi() {
+        rewriteRun(
+                xml(
+                        """
+                <project><dependencies>
+                    <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-spring-boot</artifactId><version>4.0.0</version></dependency>
+                    <dependency><groupId>ch.ubique.uetlib</groupId><artifactId>uetlib-spring-boot-security</artifactId><version>4.0.0</version></dependency>
+                    <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-storage-spring-boot</artifactId><version>3.0.0</version></dependency>
+                    <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-spring-boot-parent</artifactId><version>6.0.0</version></dependency>
+                </dependencies></project>
+                """,
+                        """
+                <project><dependencies>
+                    <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-spring-boot</artifactId><version>4.0.1</version></dependency>
+                    <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-spring-boot-security</artifactId><version>4.0.1</version></dependency>
+                    <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-storage-spring-boot</artifactId><version>3.0.1</version></dependency>
+                    <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-spring-boot-parent</artifactId><version>6.0.0</version></dependency>
+                </dependencies></project>
+                """,
+                        spec -> spec.path("pom.xml")));
+    }
+
     @Override
     public void defaults(RecipeSpec spec) {
         spec.recipe(new MigrateMavenCoordinates());
@@ -63,7 +86,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                     <dependencies>
                         <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.0.0</version></dependency>
                         <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-storage</artifactId></dependency>
-                        <dependency><groupId>ch.ubique</groupId><artifactId>inotify</artifactId><version>2.0</version></dependency>
+                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.0</version></dependency>
                     </dependencies>
                 </project>
                 """,
@@ -104,7 +127,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                     <groupId>ch.ubique.example</groupId>
                     <artifactId>example-ws</artifactId>
                     <dependencyManagement><dependencies>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-bom</artifactId><version>2026.11.0</version><type>pom</type><scope>import</scope></dependency>
+                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-bom</artifactId><version>2026.11.3</version><type>pom</type><scope>import</scope></dependency>
                     </dependencies></dependencyManagement>
                     <dependencies>
                         <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-parent</artifactId><version>2026.11.0</version><type>pom</type></dependency>
@@ -267,7 +290,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                     <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.1-2026.11.0</version></parent>
                     <artifactId>example-ws</artifactId>
                     <dependencies>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-spring-boot</artifactId><version>4.0.0</version></dependency>
+                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-spring-boot</artifactId><version>4.0.1</version></dependency>
                     </dependencies>
                 </project>
                 """,

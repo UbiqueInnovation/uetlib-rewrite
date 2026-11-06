@@ -22,6 +22,28 @@ public class MigrateMavenCoordinates extends Recipe {
     private static final Set<String> UETLIB_GROUPS =
             Set.of("ch.ubique", "ch.ubique.uetlib", "ch.uetlib");
     private static final String INTERNAL_GROUP = "ch.ubique.internal";
+    private static final Set<String> PROPERTY_API_ARTIFACTS =
+            Set.of(
+                    "uetlib-spring-boot-parent",
+                    "uetlib-spring-boot",
+                    "uetlib-spring-boot-security",
+                    "uetlib-spring-boot-coverage",
+                    "uetlib-storage-spring-boot");
+
+    private static boolean beforePropertyApi(String current, String required) {
+        java.util.regex.Matcher version =
+                java.util.regex.Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)").matcher(current);
+        if (!version.find()) return true;
+        String[] minimum = required.split("\\.");
+        for (int i = 0; i < 3; i++) {
+            int comparison =
+                    new java.math.BigInteger(version.group(i + 1))
+                            .compareTo(new java.math.BigInteger(minimum[i]));
+            if (comparison != 0) return comparison < 0;
+        }
+        return false;
+    }
+
     // Public parents and the Ubique-internal wrappers that replace them outside uetlib.
     private static final Map<String, String> INTERNAL_PARENTS =
             Map.of(
@@ -136,6 +158,37 @@ public class MigrateMavenCoordinates extends Recipe {
                             return updated;
                         }
                         if ("dependency".equals(updated.getName())
+                                && UETLIB_GROUPS.contains(group)
+                                && "uetlib-spring-boot-geo"
+                                        .equals(updated.getChildValue("artifactId").orElse(""))) {
+                            updated =
+                                    updated.withChildValue("groupId", "ch.uetlib")
+                                            .withChildValue("artifactId", "uetlib-geo-spring-boot");
+                            if ("ch.ubique".equals(group)
+                                    && updated.getChild("version").isPresent()) {
+                                updated =
+                                        updated.withChildValue(
+                                                "version",
+                                                RELEASES.getProperty("uetlib-geo-spring-boot"));
+                            }
+                            return updated;
+                        }
+                        if ("dependency".equals(updated.getName())
+                                && "ch.ubique".equals(group)
+                                && "inotify"
+                                        .equals(updated.getChildValue("artifactId").orElse(""))) {
+                            updated =
+                                    updated.withChildValue("groupId", "ch.uetlib")
+                                            .withChildValue("artifactId", "uetlib-inotify-java");
+                            if (updated.getChild("version").isPresent()) {
+                                updated =
+                                        updated.withChildValue(
+                                                "version",
+                                                RELEASES.getProperty("uetlib-inotify-java"));
+                            }
+                            return updated;
+                        }
+                        if ("dependency".equals(updated.getName())
                                 && "ch.ubique.datatrans"
                                         .equals(updated.getChildValue("groupId").orElse(null))
                                 && java.util.Set.of(
@@ -151,6 +204,26 @@ public class MigrateMavenCoordinates extends Recipe {
                                         updated.withChildValue(
                                                 "version",
                                                 RELEASES.getProperty("uetlib-payment-datatrans"));
+                            }
+                            return updated;
+                        }
+                        String propertyArtifact = updated.getChildValue("artifactId").orElse("");
+                        if (PROPERTY_API_ARTIFACTS.contains(propertyArtifact)
+                                && UETLIB_GROUPS.contains(group)
+                                && ("dependency".equals(updated.getName())
+                                        || PROJECT_PARENT.matches(getCursor()))) {
+                            if (!"ch.uetlib".equals(group)) {
+                                updated = updated.withChildValue("groupId", "ch.uetlib");
+                            }
+                            String current = updated.getChildValue("version").orElse(null);
+                            if (current != null) {
+                                if (beforePropertyApi(
+                                        current, RELEASES.getProperty(propertyArtifact))) {
+                                    updated =
+                                            updated.withChildValue(
+                                                    "version",
+                                                    RELEASES.getProperty(propertyArtifact));
+                                }
                             }
                             return updated;
                         }

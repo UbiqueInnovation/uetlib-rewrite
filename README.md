@@ -9,11 +9,12 @@ Maven coordinates: `ch.uetlib:uetlib-rewrite`.
 | Recipe | Purpose |
 | --- | --- |
 | `ch.uetlib.MigratePackages` | Move Java packages, class-name strings and resource registrations while preserving property keys. |
-| `ch.uetlib.MigrateToPublicUetlib` | Also migrate Maven parents, BOMs and dependencies to the documented public release versions. |
+| `ch.uetlib.rewrite.MigrateConfigurationProperties` | Migrate known configuration keys, Java property references, placeholders and environment-variable names. |
+| `ch.uetlib.MigrateToPublicUetlib` | Also migrate configuration keys and Maven parents, BOMs and dependencies to the documented public release versions. |
 
 The package move is part of the upcoming public major releases. These recipes are not published yet; run them only when the target library releases are available.
 
-The package recipe changes Java declarations, imports, qualified references and source paths. It also renames your application's own Java packages under `ch.ubique.backend`; inspect the diff before accepting it. Known class-name strings, scanning annotations, service registrations, Spring imports and protobuf Java-package options are migrated. Existing Spring property keys are preserved. Review dynamic reflection, Kotlin, persisted class names and JVM module/native-access flags separately.
+The package recipe changes Java declarations, imports, qualified references and source paths. It also renames your application's own Java packages under `ch.ubique.backend`; inspect the diff before accepting it. Known class-name strings, scanning annotations, service registrations, Spring imports and protobuf Java-package options are migrated. The package-only recipe preserves property keys; the combined migration also runs the configuration-property recipe. Review dynamic reflection, Kotlin, persisted class names and JVM module/native-access flags separately.
 
 ## Module ownership moves
 
@@ -32,11 +33,13 @@ WebP uses `webp`. Unambiguous scanning roots
 such as `security`, `cloud` and `test.enabledif` are updated. Review broad scans and
 logger categories rooted in shared `core`, `test` or `image.webp` packages manually;
 a single package string cannot express their split across artifacts. Existing
-Spring configuration-property names remain unchanged.
+The combined migration also updates known configuration-property names.
 
 ## Try locally
 
-Use Java 17 and Maven 3.9 or newer:
+Use JDK 25 or newer and Maven 3.9 or newer to build and run these recipes. This is the JVM requirement for the migration tooling; the recipes do not change the consuming project's Java target.
+
+Build locally:
 
 ```sh
 mvn clean install
@@ -52,7 +55,7 @@ mvn org.openrewrite.maven:rewrite-maven-plugin:6.46.1:dryRun \
 
 Once published, use `ch.uetlib:uetlib-rewrite:RELEASE` with `mvn -U` to resolve the latest non-snapshot recipe, or pin a version for repeatable migrations.
 
-The resource migration includes `application.properties` and other `.properties`, YAML and XML files: class-name values are updated while configuration keys remain unchanged.
+The resource migration includes `application.properties` and other `.properties`, YAML and XML files: class-name values are updated, and the combined migration also updates known configuration keys and placeholders.
 
 Review `target/rewrite/rewrite.patch`. To apply it, replace `:dryRun` with `:run`, then build and test the application. Installing the recipe locally does not publish it to Maven Central.
 
@@ -89,4 +92,37 @@ Apache License 2.0; see [LICENSE](LICENSE).
 The public migration also replaces the former Datatrans model/service dependencies
 with `ch.uetlib:uetlib-payment-datatrans:3.0.0` and moves
 `ch.ubique.datatrans` Java packages to `ch.uetlib.payment.datatrans.client`.
-Datatrans credential property names stay unchanged.
+Datatrans client credentials move to `ch.uetlib.payment.datatrans.client.*`; adapter settings move to `ch.uetlib.payment.datatrans.*`.
+
+## Inotify migration
+
+The combined recipe replaces `ch.ubique:inotify:2.0` with `ch.uetlib:uetlib-inotify-java:3.0.0`,
+including dependencies in dependency management. Versionless dependencies remain versionless.
+It moves `com.den_4.inotify_java` and its subpackages to `ch.uetlib.inotify`, including imports,
+class-name strings, scanning annotations, properties/YAML values and service registrations.
+The intermediate `ch.ubique.uetlib.inotify` namespace is also migrated. Inotify has no property-prefix mapping; unrelated property keys are preserved.
+Renovate performs the Maven coordinate replacement; use OpenRewrite for Java and resource changes.
+The replacement library requires Java 25 and remains Linux-only and LGPL-3.0-or-later.
+
+## Geo Spring Boot integration
+
+The combined recipe renames `uetlib-spring-boot-geo` to `ch.uetlib:uetlib-geo-spring-boot` for
+original `ch.ubique` and intermediate `ch.ubique.uetlib` / `ch.uetlib` coordinates. Original coordinates
+use the first geo migration release (`4.0.0`); intermediate coordinates retain their version.
+Packages and supported class/resource references move from the old `spring.boot.geo` namespace to
+`ch.uetlib.geo.spring.boot`. Renovate performs the same Maven artifact rename.
+
+## Configuration migration
+
+The combined recipe includes `ch.uetlib.rewrite.MigrateConfigurationProperties`; it can also be run alone.
+Its explicit prefix map is [property-migrations.properties](src/main/resources/ch/uetlib/rewrite/property-migrations.properties).
+It updates flat/nested YAML, `.properties` keys, placeholders, Java string references (including bindings,
+conditions, `@Value`, scheduling and programmatic lookups), XML configuration, Spring metadata and environment
+variable names in scanned configuration files. Values and placeholder defaults remain unchanged.
+Unknown prefixes and Java class names are left to their respective migrations. Existing new keys are unchanged.
+Review deployment configuration outside the project, dynamically constructed keys, shell scripts and Kotlin manually.
+
+Known Spring Boot artifacts need at least `4.0.1`, and storage Spring Boot needs at least `3.0.1`,
+for the new configuration prefixes. The Maven migration upgrades older or unresolved declared versions
+for these artifacts even if they already use `ch.uetlib`; versionless declarations stay versionless and
+newer versions are retained. Other intermediate artifacts keep their versions as before.
