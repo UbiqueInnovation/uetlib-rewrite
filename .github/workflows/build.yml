@@ -1,0 +1,12 @@
+name: Build
+on:
+  push:
+    branches: ['**']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    name: Build Project
+    uses: UbiqueInnovation/uetlib/.github/workflows/mvn-install.yml@3e7c72c06d5cb24c1deaabe3d0a8fd5c72e0bd83 # v0.2.4
+    secrets: inherit
