@@ -1,14 +1,24 @@
 # Changelog
 
-## 0.1.0
+## 0.1.1
 
-- Rename uetlib configuration keys and property references to `ch.uetlib.*`, including Spring bindings, `@Value`, conditions, scheduling expressions and configuration files. Migrate external deployment configuration as well.
+- Require Java 25 for recipe execution.
+- Migrate known configuration properties in Java, properties, YAML and deployment resources.
+- Migrate legacy inotify coordinates and references, and rename the geo Spring Boot integration artifact and packages.
+- Update migration versions and add regression coverage.
+- Update shared Maven build and publish workflows to v0.2.4.
 
-- Move `uetlib-spring-boot-geo` into the geo repository as `uetlib-geo-spring-boot`, with packages under `ch.uetlib.geo.spring.boot`; update consumers and migration mappings.
+- Rename uetlib configuration keys and property references to `ch.uetlib.*`, including Spring bindings, `@Value`,
+  conditions, scheduling expressions and configuration files. Migrate external deployment configuration as well.
 
-- Migrate the recovered inotify dependency and original `com.den_4.inotify_java` packages, class references and resource registrations to the public inotify library.
+- Move `uetlib-spring-boot-geo` into the geo repository as `uetlib-geo-spring-boot`, with packages under
+  `ch.uetlib.geo.spring.boot`; update consumers and migration mappings.
 
-- Require Java 25 for building and running recipes; use the Java 25 parser for migration tests and the shared workflows' Java 25 default.
+- Migrate the recovered inotify dependency and original `com.den_4.inotify_java` packages, class references and resource
+  registrations to the public inotify library.
+
+- Require Java 25 for building and running recipes; use the Java 25 parser for migration tests and the shared workflows'
+  Java 25 default.
 
 - Move Java packages and class references from `ch.ubique.uetlib` to `ch.uetlib`.
 
