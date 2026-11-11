@@ -1,11 +1,5 @@
 package ch.uetlib.rewrite;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.FindSourceFiles;
 import org.openrewrite.Preconditions;
@@ -15,6 +9,12 @@ import org.openrewrite.xml.XPathMatcher;
 import org.openrewrite.xml.XmlIsoVisitor;
 import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /** Updates known uetlib coordinates without resolving the old private artifacts. */
 public class MigrateMavenCoordinates extends Recipe {
@@ -28,18 +28,23 @@ public class MigrateMavenCoordinates extends Recipe {
                     "uetlib-spring-boot",
                     "uetlib-spring-boot-security",
                     "uetlib-spring-boot-coverage",
-                    "uetlib-storage-spring-boot");
+                    "uetlib-storage-spring-boot",
+                    "uetlib-job");
 
-    private static boolean beforePropertyApi(String current, String required) {
-        java.util.regex.Matcher version =
+    private static boolean beforePropertyApi(final String current, final String required) {
+        final var version =
                 java.util.regex.Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)").matcher(current);
-        if (!version.find()) return true;
-        String[] minimum = required.split("\\.");
-        for (int i = 0; i < 3; i++) {
-            int comparison =
+        if (!version.find()) {
+            return true;
+        }
+        final var minimum = required.split("\\.");
+        for (var i = 0; i < 3; i++) {
+            final var comparison =
                     new java.math.BigInteger(version.group(i + 1))
                             .compareTo(new java.math.BigInteger(minimum[i]));
-            if (comparison != 0) return comparison < 0;
+            if (comparison != 0) {
+                return comparison < 0;
+            }
         }
         return false;
     }
@@ -52,15 +57,15 @@ public class MigrateMavenCoordinates extends Recipe {
     private static final XPathMatcher PROJECT_PARENT = new XPathMatcher("/project/parent");
 
     private static Properties releases() {
-        Properties versions = new Properties();
-        try (InputStream stream =
+        final var versions = new Properties();
+        try (final var stream =
                 MigrateMavenCoordinates.class.getResourceAsStream(
                         "/ch/uetlib/rewrite/migration-versions.properties")) {
             if (stream == null) {
                 throw new IllegalStateException("Missing uetlib migration release map");
             }
             versions.load(stream);
-        } catch (IOException exception) {
+        } catch (final IOException exception) {
             throw new IllegalStateException("Cannot load uetlib migration release map", exception);
         }
         return versions;
@@ -80,17 +85,16 @@ public class MigrateMavenCoordinates extends Recipe {
      * Uetlib's own projects ({@code ch.ubique[.uetlib]:uetlib-*}) and the internal wrapper parents
      * keep the public parents. The groupId may be inherited from the parent.
      */
-    private static boolean isInternalConsumer(Xml.Tag project) {
-        String artifact = project.getChildValue("artifactId").orElse("");
-        String group =
+    private static boolean isInternalConsumer(final Xml.Tag project) {
+        final var artifact = project.getChildValue("artifactId").orElse("");
+        final var group =
                 project.getChildValue("groupId")
-                        .or(
-                                () ->
-                                        project.getChild("parent")
-                                                .flatMap(p -> p.getChildValue("groupId")))
+                        .or(() ->
+                                project.getChild("parent").flatMap(p -> p.getChildValue("groupId")))
                         .orElse("");
-        boolean uetlib = UETLIB_GROUPS.contains(group) && artifact.startsWith("uetlib-");
-        boolean wrapper = INTERNAL_GROUP.equals(group) && INTERNAL_PARENTS.containsValue(artifact);
+        final var uetlib = UETLIB_GROUPS.contains(group) && artifact.startsWith("uetlib-");
+        final var wrapper =
+                INTERNAL_GROUP.equals(group) && INTERNAL_PARENTS.containsValue(artifact);
         return !uetlib && !wrapper;
     }
 
@@ -100,16 +104,16 @@ public class MigrateMavenCoordinates extends Recipe {
                 new FindSourceFiles("**/pom.xml"),
                 new XmlIsoVisitor<ExecutionContext>() {
                     @Override
-                    public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext context) {
-                        Xml.Tag updated = super.visitTag(tag, context);
+                    public Xml.Tag visitTag(final Xml.Tag tag, final ExecutionContext context) {
+                        var updated = super.visitTag(tag, context);
                         // The old model and service modules are now one dependency. Collapse
                         // duplicates only when the entire migrated declaration is identical.
                         if ("dependencies".equals(updated.getName())
                                 && updated.getContent() != null) {
-                            java.util.Set<String> seen = new java.util.HashSet<>();
-                            java.util.List<Content> content = new ArrayList<>();
-                            for (Content child : updated.getContent()) {
-                                if (child instanceof Xml.Tag dependency
+                            final java.util.Set<String> seen = new java.util.HashSet<>();
+                            final java.util.List<Content> content = new ArrayList<>();
+                            for (final var child : updated.getContent()) {
+                                if (child instanceof final Xml.Tag dependency
                                         && "ch.uetlib"
                                                 .equals(
                                                         dependency
@@ -120,11 +124,13 @@ public class MigrateMavenCoordinates extends Recipe {
                                                         dependency
                                                                 .getChildValue("artifactId")
                                                                 .orElse(null))) {
-                                    String key =
+                                    final var key =
                                             dependency
                                                     .printTrimmed(getCursor())
                                                     .replaceAll("\\s+", "");
-                                    if (!seen.add(key)) continue;
+                                    if (!seen.add(key)) {
+                                        continue;
+                                    }
                                 }
                                 content.add(child);
                             }
@@ -132,8 +138,8 @@ public class MigrateMavenCoordinates extends Recipe {
                                 updated = updated.withContent(content);
                             }
                         }
-                        String group = updated.getChildValue("groupId").orElse(null);
-                        String internalParent =
+                        final var group = updated.getChildValue("groupId").orElse(null);
+                        final var internalParent =
                                 INTERNAL_PARENTS.get(
                                         updated.getChildValue("artifactId").orElse(""));
                         if (internalParent != null
@@ -207,7 +213,7 @@ public class MigrateMavenCoordinates extends Recipe {
                             }
                             return updated;
                         }
-                        String propertyArtifact = updated.getChildValue("artifactId").orElse("");
+                        final var propertyArtifact = updated.getChildValue("artifactId").orElse("");
                         if (PROPERTY_API_ARTIFACTS.contains(propertyArtifact)
                                 && UETLIB_GROUPS.contains(group)
                                 && ("dependency".equals(updated.getName())
@@ -215,7 +221,7 @@ public class MigrateMavenCoordinates extends Recipe {
                             if (!"ch.uetlib".equals(group)) {
                                 updated = updated.withChildValue("groupId", "ch.uetlib");
                             }
-                            String current = updated.getChildValue("version").orElse(null);
+                            final var current = updated.getChildValue("version").orElse(null);
                             if (current != null) {
                                 if (beforePropertyApi(
                                         current, RELEASES.getProperty(propertyArtifact))) {
@@ -231,8 +237,8 @@ public class MigrateMavenCoordinates extends Recipe {
                                 .contains(updated.getChildValue("groupId").orElse(""))) {
                             return updated;
                         }
-                        String artifact = updated.getChildValue("artifactId").orElse("");
-                        String version = RELEASES.getProperty(artifact);
+                        final var artifact = updated.getChildValue("artifactId").orElse("");
+                        final var version = RELEASES.getProperty(artifact);
                         if (version == null) {
                             return updated;
                         }

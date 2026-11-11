@@ -6,9 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
 
+@SuppressWarnings("java:S2699")
 class MigratePackagesTest implements RewriteTest {
     @Override
-    public void defaults(RecipeSpec spec) {
+    public void defaults(final RecipeSpec spec) {
         spec.recipeFromResources("ch.uetlib.MigratePackages");
     }
 
