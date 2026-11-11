@@ -6,15 +6,20 @@ Maven coordinates: `ch.uetlib:uetlib-rewrite`.
 
 ## Recipes
 
-| Recipe | Purpose |
-| --- | --- |
-| `ch.uetlib.MigratePackages` | Move Java packages, class-name strings and resource registrations while preserving property keys. |
-| `ch.uetlib.rewrite.MigrateConfigurationProperties` | Migrate known configuration keys, Java property references, placeholders and environment-variable names. |
-| `ch.uetlib.MigrateToPublicUetlib` | Also migrate configuration keys and Maven parents, BOMs and dependencies to the documented public release versions. |
+| Recipe                                             | Purpose                                                                                                             |
+|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| `ch.uetlib.MigratePackages`                        | Move Java packages, class-name strings and resource registrations while preserving property keys.                   |
+| `ch.uetlib.rewrite.MigrateConfigurationProperties` | Migrate known configuration keys, Java property references, placeholders and environment-variable names.            |
+| `ch.uetlib.MigrateToPublicUetlib`                  | Also migrate configuration keys and Maven parents, BOMs and dependencies to the documented public release versions. |
 
-The package move is part of the upcoming public major releases. These recipes are not published yet; run them only when the target library releases are available.
+The package move is part of the upcoming public major releases. These recipes are not published yet; run them only when
+the target library releases are available.
 
-The package recipe changes Java declarations, imports, qualified references and source paths. It also renames your application's own Java packages under `ch.ubique.backend`; inspect the diff before accepting it. Known class-name strings, scanning annotations, service registrations, Spring imports and protobuf Java-package options are migrated. The package-only recipe preserves property keys; the combined migration also runs the configuration-property recipe. Review dynamic reflection, Kotlin, persisted class names and JVM module/native-access flags separately.
+The package recipe changes Java declarations, imports, qualified references and source paths. It also renames your
+application's own Java packages under `ch.ubique.backend`; inspect the diff before accepting it. Known class-name
+strings, scanning annotations, service registrations, Spring imports and protobuf Java-package options are migrated. The
+package-only recipe preserves property keys; the combined migration also runs the configuration-property recipe. Review
+dynamic reflection, Kotlin, persisted class names and JVM module/native-access flags separately.
 
 ## Module ownership moves
 
@@ -37,7 +42,8 @@ The combined migration also updates known configuration-property names.
 
 ## Try locally
 
-Use JDK 25 or newer and Maven 3.9 or newer to build and run these recipes. This is the JVM requirement for the migration tooling; the recipes do not change the consuming project's Java target.
+Use JDK 25 or newer and Maven 3.9 or newer to build and run these recipes. This is the JVM requirement for the migration
+tooling; the recipes do not change the consuming project's Java target.
 
 Build locally:
 
@@ -53,32 +59,47 @@ mvn org.openrewrite.maven:rewrite-maven-plugin:6.46.1:dryRun \
   -Drewrite.activeRecipes=ch.uetlib.MigrateToPublicUetlib
 ```
 
-Once published, use `ch.uetlib:uetlib-rewrite:RELEASE` with `mvn -U` to resolve the latest non-snapshot recipe, or pin a version for repeatable migrations.
+Once published, use `ch.uetlib:uetlib-rewrite:RELEASE` with `mvn -U` to resolve the latest non-snapshot recipe, or pin a
+version for repeatable migrations.
 
-The resource migration includes `application.properties` and other `.properties`, YAML and XML files: class-name values are updated, and the combined migration also updates known configuration keys and placeholders.
+The resource migration includes `application.properties` and other `.properties`, YAML and XML files: class-name values
+are updated, and the combined migration also updates known configuration keys and placeholders.
 
-Review `target/rewrite/rewrite.patch`. To apply it, replace `:dryRun` with `:run`, then build and test the application. Installing the recipe locally does not publish it to Maven Central.
+Review `target/rewrite/rewrite.patch`. To apply it, replace `:dryRun` with `:run`, then build and test the application.
+Installing the recipe locally does not publish it to Maven Central.
 
-The combined recipe migrates known Maven coordinates and pins existing version elements to the first public migration releases. This deliberately replaces old version expressions in the affected elements; unrelated properties and dependencies remain unchanged. Versionless managed dependencies remain versionless.
+The combined recipe migrates known Maven coordinates and pins existing version elements to the first public migration
+releases. This deliberately replaces old version expressions in the affected elements; unrelated properties and
+dependencies remain unchanged. Versionless managed dependencies remain versionless.
 
 ### Ubique-internal parents
 
-Projects outside uetlib move only their `<project><parent>` to the Ubique-internal wrapper parents; uetlib libraries and BOMs move to `ch.uetlib`:
+Projects outside uetlib move only their `<project><parent>` to the Ubique-internal wrapper parents; uetlib libraries and
+BOMs move to `ch.uetlib`:
 
-| Parent (`ch.ubique`, `ch.ubique.uetlib` or `ch.uetlib`) | Ubique-internal parent |
-| --- | --- |
-| `uetlib-parent` | `ch.ubique.internal:ubique-library-parent` |
-| `uetlib-spring-boot-starter-parent` | `ch.ubique.internal:ubique-spring-boot-starter-parent` |
+| Parent (`ch.ubique`, `ch.ubique.uetlib` or `ch.uetlib`) | Ubique-internal parent                                 |
+|---------------------------------------------------------|--------------------------------------------------------|
+| `uetlib-parent`                                         | `ch.ubique.internal:ubique-library-parent`             |
+| `uetlib-spring-boot-starter-parent`                     | `ch.ubique.internal:ubique-spring-boot-starter-parent` |
 
-Wrapper versions equal the public parent versions they wrap. Original `ch.ubique` parents are pinned to the first migration release (`2026.11.0` and `4.1.1-2026.11.0`); intermediate `ch.ubique.uetlib` parents keep their version. Uetlib's own projects (`ch.ubique`, `ch.ubique.uetlib` or `ch.uetlib` groupId, own or inherited, with a `uetlib-*` artifactId) and the wrapper parents themselves keep the public parents.
+Wrapper versions equal the public parent versions they wrap. Original `ch.ubique` parents are pinned to the configured
+migration versions (`2026.11.0` and `4.1.2-2026.11.2`); intermediate `ch.ubique.uetlib` parents keep their version.
+Uetlib's own projects (`ch.ubique`, `ch.ubique.uetlib` or `ch.uetlib` groupId, own or inherited, with a `uetlib-*`
+artifactId) and the wrapper parents themselves keep the public parents.
 
 ### Renovate
 
-Renovate can propose the same coordinate changes. Public uetlib repositories extend `github>UbiqueInnovation/uetlib:renovate-base.json5`, which includes only the public `renovate-migration.json5` rules. Ubique-internal consumers use `renovate-config-backend`, whose `base.json5` defines the internal parent replacements directly and extends the public coordinate migration for runtime dependencies. Those parent rules exclude uetlib and the wrapper repositories.
+Renovate can propose the same coordinate changes. Public uetlib repositories extend
+`github>UbiqueInnovation/uetlib:renovate-base.json5`, which includes only the public `renovate-migration.json5` rules.
+Ubique-internal consumers use `renovate-config-backend`, whose `base.json5` defines the internal parent replacements
+directly and extends the public coordinate migration for runtime dependencies. Those parent rules exclude uetlib and the
+wrapper repositories.
 
 ## Add recipes
 
-Place declarative recipes in `src/main/resources/META-INF/rewrite/` and load them with `recipeFromResources` in tests. Prefer small recipes that future release-specific composite recipes can combine. Keep this project independent of uetlib parents and runtime libraries so it can migrate older consumers.
+Place declarative recipes in `src/main/resources/META-INF/rewrite/` and load them with `recipeFromResources` in tests.
+Prefer small recipes that future release-specific composite recipes can combine. Keep this project independent of uetlib
+parents and runtime libraries so it can migrate older consumers.
 
 ```sh
 mvn spotless:apply
@@ -92,7 +113,8 @@ Apache License 2.0; see [LICENSE](LICENSE).
 The public migration also replaces the former Datatrans model/service dependencies
 with `ch.uetlib:uetlib-payment-datatrans:3.0.0` and moves
 `ch.ubique.datatrans` Java packages to `ch.uetlib.payment.datatrans.client`.
-Datatrans client credentials move to `ch.uetlib.payment.datatrans.client.*`; adapter settings move to `ch.uetlib.payment.datatrans.*`.
+Datatrans client credentials move to `ch.uetlib.payment.datatrans.client.*`; adapter settings move to
+`ch.uetlib.payment.datatrans.*`.
 
 ## Inotify migration
 
@@ -100,7 +122,8 @@ The combined recipe replaces `ch.ubique:inotify:2.0` with `ch.uetlib:uetlib-inot
 including dependencies in dependency management. Versionless dependencies remain versionless.
 It moves `com.den_4.inotify_java` and its subpackages to `ch.uetlib.inotify`, including imports,
 class-name strings, scanning annotations, properties/YAML values and service registrations.
-The intermediate `ch.ubique.uetlib.inotify` namespace is also migrated. Inotify has no property-prefix mapping; unrelated property keys are preserved.
+The intermediate `ch.ubique.uetlib.inotify` namespace is also migrated. Inotify has no property-prefix mapping;
+unrelated property keys are preserved.
 Renovate performs the Maven coordinate replacement; use OpenRewrite for Java and resource changes.
 The replacement library requires Java 25 and remains Linux-only and LGPL-3.0-or-later.
 
@@ -115,7 +138,8 @@ Packages and supported class/resource references move from the old `spring.boot.
 ## Configuration migration
 
 The combined recipe includes `ch.uetlib.rewrite.MigrateConfigurationProperties`; it can also be run alone.
-Its explicit prefix map is [property-migrations.properties](src/main/resources/ch/uetlib/rewrite/property-migrations.properties).
+Its explicit prefix map
+is [property-migrations.properties](src/main/resources/ch/uetlib/rewrite/property-migrations.properties).
 It updates flat/nested YAML, `.properties` keys, placeholders, Java string references (including bindings,
 conditions, `@Value`, scheduling and programmatic lookups), XML configuration, Spring metadata and environment
 variable names in scanned configuration files. Values and placeholder defaults remain unchanged.
@@ -126,3 +150,27 @@ Known Spring Boot artifacts need at least `4.0.1`, and storage Spring Boot needs
 for the new configuration prefixes. The Maven migration upgrades older or unresolved declared versions
 for these artifacts even if they already use `ch.uetlib`; versionless declarations stay versionless and
 newer versions are retained. Other intermediate artifacts keep their versions as before.
+
+## Job queue prereleases
+
+For deployments using `uetlib-job:6.0.0-alpha.*`, the combined migration targets `ch.uetlib:uetlib-job:6.0.3`.
+This includes dependencies already using `ch.ubique.uetlib` or `ch.uetlib`; newer versions and versionless managed
+entries are preserved. Run the updated recipe only after the target job release is available.
+
+The job property-prefix migration also covers queue-specific settings, including
+`check.single-primary-instance`, `check.single-primary-instance.startup-grace`, `check.cancelled-queued-runs`,
+`instance.*` and `runner.*`. For example:
+
+```properties
+# Before
+ch.ubique.backend.job.check.single-primary-instance=ERROR
+# After
+ch.uetlib.job.check.single-primary-instance=ERROR
+```
+
+Property values and placeholder defaults are preserved; Java property references, YAML and deployment environment
+names are migrated too. No additional mapping is needed for each suffix under the known job prefixes.
+
+Earlier queue prereleases exposed `check.single-primary-instance.overlap-grace`. The lease-based implementation no
+longer reads it: remove that setting manually. It is not equivalent to `startup-grace`, so the recipe does not map one
+to the other. Review the job release's remaining queue API and database migration instructions separately.
