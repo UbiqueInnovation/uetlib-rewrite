@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5
+
+- Use shared Maven build and publish workflows at `v1.0.0` to enforce formatting checks in CI.
+
 ## 0.1.4
 
 - Require a supported uetlib library or Spring Boot starter-parent for the entire combined migration, including local
