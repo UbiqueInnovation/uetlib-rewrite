@@ -77,11 +77,12 @@ public class MigrateClassReferences extends Recipe {
     private static final Set<String> SCANNING =
             Set.of(
                     "ComponentScan",
-                    "EntityScan",
-                    "EnableJpaRepositories",
-                    "SpringBootApplication",
+                    "ConfigurationPropertiesScan",
                     "EnableJobs",
-                    "EnableStorages");
+                    "EnableJpaRepositories",
+                    "EnableStorages",
+                    "EntityScan",
+                    "SpringBootApplication");
 
     static String classNames(String text) {
         Matcher matcher = REFERENCE.matcher(text);
