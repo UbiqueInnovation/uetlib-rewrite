@@ -1,15 +1,16 @@
 package ch.uetlib.rewrite;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** Moves class-name strings and package-scanning annotations without renaming property keys. */
 public class MigrateClassReferences extends Recipe {
@@ -34,19 +35,19 @@ public class MigrateClassReferences extends Recipe {
                     Map.entry("ch.uetlib.image.webp", "ch.uetlib.webp"),
                     Map.entry("ch.uetlib.spring.boot.geo", "ch.uetlib.geo.spring.boot"));
 
-    static String packages(String text) {
-        String migrated =
+    static String packages(final String text) {
+        final var migrated =
                 text.replace("ch.ubique.uetlib", NEW)
                         .replace(OLD, NEW)
                         .replace(CLIENT_OLD, CLIENT_NEW)
                         .replaceAll("\\bcom\\.den_4\\.inotify_java(?=\\W|$)", "ch.uetlib.inotify");
-        Matcher matcher = REFERENCE.matcher(migrated);
-        StringBuilder result = new StringBuilder();
+        final var matcher = REFERENCE.matcher(migrated);
+        final var result = new StringBuilder();
         while (matcher.find()) {
-            String reference = matcher.group();
-            String replacement = reference;
-            for (var entry : MigrateOwnedTypes.TYPES.entrySet()) {
-                String type = entry.getKey();
+            final var reference = matcher.group();
+            var replacement = reference;
+            for (final var entry : MigrateOwnedTypes.TYPES.entrySet()) {
+                final var type = entry.getKey();
                 if (reference.equals(type)
                         || reference.startsWith(type + ".")
                         || reference.startsWith(type + "$")) {
@@ -55,11 +56,12 @@ public class MigrateClassReferences extends Recipe {
                 }
             }
             // Class mappings run first: the old WebP namespace also held core image helpers.
-            for (var entry : OWNED_PACKAGES.entrySet()) {
-                String oldPackage = entry.getKey();
-                String newPackage = entry.getValue();
-                if (replacement.equals(newPackage) || replacement.startsWith(newPackage + "."))
+            for (final var entry : OWNED_PACKAGES.entrySet()) {
+                final var oldPackage = entry.getKey();
+                final var newPackage = entry.getValue();
+                if (replacement.equals(newPackage) || replacement.startsWith(newPackage + ".")) {
                     continue;
+                }
                 if (replacement.equals(oldPackage) || replacement.startsWith(oldPackage + ".")) {
                     replacement = newPackage + replacement.substring(oldPackage.length());
                     break;
@@ -84,12 +86,12 @@ public class MigrateClassReferences extends Recipe {
                     "EntityScan",
                     "SpringBootApplication");
 
-    static String classNames(String text) {
-        Matcher matcher = REFERENCE.matcher(text);
-        StringBuilder result = new StringBuilder();
+    static String classNames(final String text) {
+        final var matcher = REFERENCE.matcher(text);
+        final var result = new StringBuilder();
         while (matcher.find()) {
-            String value = matcher.group();
-            String replacement =
+            final var value = matcher.group();
+            final var replacement =
                     value.chars().anyMatch(Character::isUpperCase) ? packages(value) : value;
             matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
         }
@@ -112,12 +114,11 @@ public class MigrateClassReferences extends Recipe {
         return new JavaIsoVisitor<ExecutionContext>() {
             @Override
             public J.ClassDeclaration visitClassDeclaration(
-                    J.ClassDeclaration declaration, ExecutionContext context) {
-                J.ClassDeclaration updated = super.visitClassDeclaration(declaration, context);
+                    final J.ClassDeclaration declaration, final ExecutionContext context) {
+                var updated = super.visitClassDeclaration(declaration, context);
                 // Preserve declaration kinds when ChangePackage rebuilds type attribution.
-                if (updated.getType() instanceof JavaType.Class type) {
-                    JavaType.FullyQualified.Kind kind =
-                            JavaType.FullyQualified.Kind.valueOf(updated.getKind().name());
+                if (updated.getType() instanceof final JavaType.Class type) {
+                    final var kind = JavaType.FullyQualified.Kind.valueOf(updated.getKind().name());
                     if (type.getKind() != kind) {
                         updated = updated.withType(type.withKind(kind));
                     }
@@ -126,9 +127,9 @@ public class MigrateClassReferences extends Recipe {
             }
 
             @Override
-            public J.Literal visitLiteral(J.Literal literal, ExecutionContext context) {
-                J.Literal updated = super.visitLiteral(literal, context);
-                if (!(updated.getValue() instanceof String text)
+            public J.Literal visitLiteral(final J.Literal literal, final ExecutionContext context) {
+                final var updated = super.visitLiteral(literal, context);
+                if (!(updated.getValue() instanceof final String text)
                         || !(text.contains(OLD)
                                 || text.contains(CLIENT_OLD)
                                 || text.contains(NEW)
@@ -136,32 +137,27 @@ public class MigrateClassReferences extends Recipe {
                                 || text.contains(INOTIFY_OLD))) {
                     return updated;
                 }
-                J.Annotation annotation = getCursor().firstEnclosing(J.Annotation.class);
-                J.NewClass constructor = getCursor().firstEnclosing(J.NewClass.class);
-                boolean scanning =
+                final var annotation = getCursor().firstEnclosing(J.Annotation.class);
+                final var constructor = getCursor().firstEnclosing(J.NewClass.class);
+                var scanning =
                         annotation != null && SCANNING.contains(annotation.getSimpleName())
                                 || constructor != null
-                                        && constructor
-                                                .getClazz()
-                                                .printTrimmed()
-                                                .endsWith("Reflections");
-                J.VariableDeclarations.NamedVariable variable =
+                                        && constructor.getClazz().print().endsWith("Reflections");
+                final var variable =
                         getCursor().firstEnclosing(J.VariableDeclarations.NamedVariable.class);
-                J.MethodInvocation method = getCursor().firstEnclosing(J.MethodInvocation.class);
-                boolean logger =
-                        variable != null && variable.getSimpleName().equals("LOGGER_NAME")
+                final var method = getCursor().firstEnclosing(J.MethodInvocation.class);
+                final var logger =
+                        variable != null && "LOGGER_NAME".equals(variable.getSimpleName())
                                 || method != null
-                                        && method.getSimpleName().equals("getLogger")
+                                        && "getLogger".equals(method.getSimpleName())
                                         && method.getSelect() != null
-                                        && method.getSelect()
-                                                .printTrimmed()
-                                                .endsWith("LoggerFactory");
+                                        && method.getSelect().print().endsWith("LoggerFactory");
                 scanning = scanning || logger;
-                String replacement = scanning ? packages(text) : classNames(text);
+                final var replacement = scanning ? packages(text) : classNames(text);
                 if (text.equals(replacement)) {
                     return updated;
                 }
-                String source = updated.getValueSource();
+                final var source = updated.getValueSource();
                 return updated.withValue(replacement)
                         .withValueSource(
                                 source == null
