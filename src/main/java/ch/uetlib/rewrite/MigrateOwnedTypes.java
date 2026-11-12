@@ -1,14 +1,13 @@
 package ch.uetlib.rewrite;
 
-import org.openrewrite.Recipe;
-import org.openrewrite.java.ChangeType;
-
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
+import org.openrewrite.Recipe;
+import org.openrewrite.java.ChangeType;
 
 /** Relocates only known library types; shared package namespaces must not be moved wholesale. */
 public class MigrateOwnedTypes extends Recipe {
@@ -45,12 +44,13 @@ public class MigrateOwnedTypes extends Recipe {
     public List<Recipe> getRecipeList() {
         return TYPES.entrySet().stream()
                 .sorted(Comparator.comparing(entry -> !entry.getKey().contains("$")))
-                .map(entry ->
-                        (Recipe)
-                                new ChangeType(
-                                        entry.getKey(),
-                                        entry.getValue(),
-                                        entry.getKey().contains("$")))
+                .map(
+                        entry ->
+                                (Recipe)
+                                        new ChangeType(
+                                                entry.getKey(),
+                                                entry.getValue(),
+                                                entry.getKey().contains("$")))
                 .toList();
     }
 }

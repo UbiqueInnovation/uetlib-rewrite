@@ -2,16 +2,6 @@ package ch.uetlib.rewrite;
 
 import static java.util.Map.entry;
 
-import org.jspecify.annotations.Nullable;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.Recipe;
-import org.openrewrite.SourceFile;
-import org.openrewrite.Tree;
-import org.openrewrite.TreeVisitor;
-import org.openrewrite.java.JavaIsoVisitor;
-import org.openrewrite.java.tree.J;
-import org.openrewrite.text.PlainTextParser;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -22,6 +12,15 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.Recipe;
+import org.openrewrite.SourceFile;
+import org.openrewrite.Tree;
+import org.openrewrite.TreeVisitor;
+import org.openrewrite.java.JavaIsoVisitor;
+import org.openrewrite.java.tree.J;
+import org.openrewrite.text.PlainTextParser;
 
 /** Migrates known configuration namespaces separately from Java package ownership. */
 public class MigrateConfigurationProperties extends Recipe {

@@ -1,14 +1,13 @@
 package ch.uetlib.rewrite;
 
+import java.nio.file.Path;
+import java.util.regex.Pattern;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.SourceFile;
 import org.openrewrite.Tree;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.text.PlainTextParser;
-
-import java.nio.file.Path;
-import java.util.regex.Pattern;
 
 /** Resource migration runs last because converting a file to text discards its language tree. */
 @SuppressWarnings("unused") // linked in uetlib-migration.yml
@@ -44,18 +43,20 @@ public class MigrateResourceReferences extends Recipe {
                     replacement =
                             Pattern.compile("(java_package\\s*=\\s*\"\\s*)([\\w.]+)")
                                     .matcher(text)
-                                    .replaceAll(match ->
-                                            match.group(1)
-                                                    + MigrateClassReferences.packages(
-                                                            match.group(2)));
+                                    .replaceAll(
+                                            match ->
+                                                    match.group(1)
+                                                            + MigrateClassReferences.packages(
+                                                                    match.group(2)));
                 } else if (path.matches(".*/logback[^/]*\\.xml")) {
                     replacement =
                             Pattern.compile("(<logger\\b[^>]*\\bname\\s*=\\s*[\"'])([\\w.]+)")
                                     .matcher(MigrateClassReferences.classNames(text))
-                                    .replaceAll(match ->
-                                            match.group(1)
-                                                    + MigrateClassReferences.packages(
-                                                            match.group(2)));
+                                    .replaceAll(
+                                            match ->
+                                                    match.group(1)
+                                                            + MigrateClassReferences.packages(
+                                                                    match.group(2)));
                 } else if (path.endsWith(".xml")
                         || path.endsWith(".properties")
                         || path.endsWith(".yml")

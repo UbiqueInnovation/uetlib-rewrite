@@ -2,11 +2,10 @@ package ch.uetlib.rewrite;
 
 import static org.openrewrite.xml.Assertions.xml;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
-
-import java.util.List;
 
 @SuppressWarnings("java:S2699")
 class MigrateMavenCoordinatesTest implements RewriteTest {

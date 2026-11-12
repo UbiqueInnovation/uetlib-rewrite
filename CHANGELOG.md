@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.4
+
+- Require a supported uetlib library or Spring Boot starter-parent for the entire combined migration, including local
+  reactor inheritance; reject unrelated parents before writing any changes. Map these parents to their matching
+  Ubique-internal wrappers for consumers outside uetlib.
+- Remove plain uetlib dependency-management pins whenever the resolved parent manages the artifact, regardless of version;
+  adopt the parent's versions while retaining custom declarations and unmanaged artifacts.
+
 ## 0.1.3
 
 - Migrate job queue prerelease dependencies to 6.0.3, including intermediate and public coordinates.

@@ -65,6 +65,18 @@ version for repeatable migrations.
 The resource migration includes `application.properties` and other `.properties`, YAML and XML files: class-name values
 are updated, and the combined migration also updates known configuration keys and placeholders.
 
+The combined `MigrateToPublicUetlib` recipe requires every Maven project to inherit either `uetlib-parent` or
+`uetlib-spring-boot-starter-parent` (legacy, intermediate or public coordinates), or the corresponding
+`ch.ubique.internal` wrapper. Local reactor parent chains are supported. A missing or unrelated parent aborts the whole
+migration before files are written; Spring Boot's own `org.springframework.boot:spring-boot-starter-parent` alone does
+not meet this requirement. The package-only and configuration-only recipes remain usable independently.
+
+Before migrating coordinates, the combined recipe removes plain `uetlib-*` dependency-management entries whenever the
+parent manages the artifact, regardless of whether the local pin is older, equal or newer. The migration deliberately
+adopts the parent's versions; consumers must build and test the result. Exclusions, classifiers, scopes, BOM imports,
+profile declarations and artifacts not managed by the parent are retained. Cleanup requires resolved Maven metadata;
+XML-only migrations leave dependency management intact rather than guessing which artifacts the parent manages.
+
 Review `target/rewrite/rewrite.patch`. To apply it, replace `:dryRun` with `:run`, then build and test the application.
 Installing the recipe locally does not publish it to Maven Central.
 

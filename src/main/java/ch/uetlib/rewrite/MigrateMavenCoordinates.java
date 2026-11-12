@@ -1,15 +1,5 @@
 package ch.uetlib.rewrite;
 
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.FindSourceFiles;
-import org.openrewrite.Preconditions;
-import org.openrewrite.Recipe;
-import org.openrewrite.TreeVisitor;
-import org.openrewrite.xml.XPathMatcher;
-import org.openrewrite.xml.XmlIsoVisitor;
-import org.openrewrite.xml.tree.Content;
-import org.openrewrite.xml.tree.Xml;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -19,6 +9,15 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.FindSourceFiles;
+import org.openrewrite.Preconditions;
+import org.openrewrite.Recipe;
+import org.openrewrite.TreeVisitor;
+import org.openrewrite.xml.XPathMatcher;
+import org.openrewrite.xml.XmlIsoVisitor;
+import org.openrewrite.xml.tree.Content;
+import org.openrewrite.xml.tree.Xml;
 
 /** Updates known uetlib coordinates without resolving the old private artifacts. */
 public class MigrateMavenCoordinates extends Recipe {
@@ -91,8 +90,10 @@ public class MigrateMavenCoordinates extends Recipe {
         final var artifact = project.getChildValue("artifactId").orElse("");
         final var group =
                 project.getChildValue("groupId")
-                        .or(() ->
-                                project.getChild("parent").flatMap(p -> p.getChildValue("groupId")))
+                        .or(
+                                () ->
+                                        project.getChild("parent")
+                                                .flatMap(p -> p.getChildValue("groupId")))
                         .orElse("");
         final var uetlib = UETLIB_GROUPS.contains(group) && artifact.startsWith("uetlib-");
         final var wrapper =
