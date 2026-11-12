@@ -11,9 +11,10 @@ import org.junit.jupiter.api.TestFactory;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
 
+@SuppressWarnings("java:S2699")
 class MigrateOwnedTypesTest implements RewriteTest {
     @Override
-    public void defaults(RecipeSpec spec) {
+    public void defaults(final RecipeSpec spec) {
         spec.recipeFromResources("ch.uetlib.MigrateToPublicUetlib");
     }
 
@@ -38,11 +39,11 @@ class MigrateOwnedTypesTest implements RewriteTest {
                                                                                         .getValue()))));
     }
 
-    private void assertTypeMoves(String old, String target) {
-        String name = old.substring(old.lastIndexOf('.') + 1);
-        String oldPackage = old.substring(0, old.lastIndexOf('.'));
-        String newPackage = target.substring(0, target.lastIndexOf('.'));
-        String consumer =
+    private void assertTypeMoves(final String old, final String target) {
+        final var name = old.substring(old.lastIndexOf('.') + 1);
+        final var oldPackage = old.substring(0, old.lastIndexOf('.'));
+        final var newPackage = target.substring(0, target.lastIndexOf('.'));
+        final var consumer =
                 """
                 package example;
 

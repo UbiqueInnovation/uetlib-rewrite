@@ -11,9 +11,10 @@ import org.junit.jupiter.api.TestFactory;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
 
+@SuppressWarnings("java:S2699")
 class MigrateGeoSpringBootTest implements RewriteTest {
     @Override
-    public void defaults(RecipeSpec spec) {
+    public void defaults(final RecipeSpec spec) {
         spec.recipeFromResources("ch.uetlib.MigrateToPublicUetlib");
     }
 
@@ -25,12 +26,12 @@ class MigrateGeoSpringBootTest implements RewriteTest {
                                 DynamicTest.dynamicTest(
                                         group,
                                         () -> {
-                                            String oldPackage =
-                                                    group.equals("ch.ubique")
+                                            final var oldPackage =
+                                                    "ch.ubique".equals(group)
                                                             ? "ch.ubique.backend.spring.boot.geo"
                                                             : group + ".spring.boot.geo";
-                                            String version =
-                                                    group.equals("ch.ubique") ? "4.0.0" : "5.1.0";
+                                            final var version =
+                                                    "ch.ubique".equals(group) ? "4.0.3" : "5.1.0";
                                             rewriteRun(
                                                     xml(
                                                             "<project><dependencies><dependency><groupId>"
@@ -84,14 +85,14 @@ class MigrateGeoSpringBootTest implements RewriteTest {
                         """
                 <project>
                     <dependencyManagement><dependencies><dependency>
-                        <groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId><version>4.0.0</version>
+                        <groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId><version>4.0.3</version>
                     </dependency></dependencies></dependencyManagement>
                     <dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId></dependency></dependencies>
                 </project>
                 """,
                         spec -> spec.path("pom.xml")),
                 xml(
-                        "<project><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId><version>4.0.0</version></dependency></dependencies></project>",
+                        "<project><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId><version>4.0.3</version></dependency></dependencies></project>",
                         spec -> spec.path("ready/pom.xml")),
                 java("package ch.uetlib.geo.spring.boot; class AlreadyMigrated {}"));
     }

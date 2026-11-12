@@ -10,7 +10,81 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
 
+@SuppressWarnings("java:S2699")
 class MigrateConfigurationPropertiesTest implements RewriteTest {
+    @Test
+    void migratesQueuePrereleaseConfigurationWithoutChangingValues() {
+        rewriteRun(
+                properties(
+                        """
+                ch.ubique.backend.job.check.cancelled-queued-runs=WARN
+                ch.ubique.backend.job.check.single-primary-instance=ERROR
+                ch.ubique.backend.job.check.single-primary-instance.startup-grace=PT2M
+                ch.ubique.backend.job.instance.check-in=PT30S
+                ch.ubique.backend.job.instance.purge-after=P7D
+                ch.ubique.backend.job.instance.stale-after=PT2M
+                ch.ubique.backend.job.runner.check-for-runnable.cron=-
+                ch.ubique.backend.job.runner.delete-old-cancelled-queued.cron=-
+                ch.ubique.backend.job.runner.expire-unclaimable-queued.cron=-
+                ch.ubique.backend.job.runner.instance.name=queue-worker
+                ch.ubique.backend.job.runner.instance.taints=test
+                ch.ubique.backend.job.runner.max.pages.per.check=3
+                ch.ubique.backend.job.runner.max.runnable.per.check=5
+                ch.ubique.backend.job.runner.reconcile-running.cron=-
+                ch.ubique.backend.job.runner.reset-abandoned-claims.cron=-
+                ch.ubique.backend.job.runner.unknown-job.timeout=PT5M
+                """,
+                        """
+                ch.uetlib.job.check.cancelled-queued-runs=WARN
+                ch.uetlib.job.check.single-primary-instance=ERROR
+                ch.uetlib.job.check.single-primary-instance.startup-grace=PT2M
+                ch.uetlib.job.instance.check-in=PT30S
+                ch.uetlib.job.instance.purge-after=P7D
+                ch.uetlib.job.instance.stale-after=PT2M
+                ch.uetlib.job.runner.check-for-runnable.cron=-
+                ch.uetlib.job.runner.delete-old-cancelled-queued.cron=-
+                ch.uetlib.job.runner.expire-unclaimable-queued.cron=-
+                ch.uetlib.job.runner.instance.name=queue-worker
+                ch.uetlib.job.runner.instance.taints=test
+                ch.uetlib.job.runner.max.pages.per.check=3
+                ch.uetlib.job.runner.max.runnable.per.check=5
+                ch.uetlib.job.runner.reconcile-running.cron=-
+                ch.uetlib.job.runner.reset-abandoned-claims.cron=-
+                ch.uetlib.job.runner.unknown-job.timeout=PT5M
+                """,
+                        spec -> spec.path("src/main/resources/application.properties")));
+    }
+
+    @Test
+    void migratesQueuePrereleasePlaceholdersAndDeploymentEnvironment() {
+        rewriteRun(
+                java(
+                        """
+                class QueueConfig {
+                    @interface Value { String value(); }
+                    @Value("${ch.ubique.backend.job.check.single-primary-instance:ERROR}")
+                    String level;
+                    String name = System.getProperty("ch.ubique.backend.job.runner.instance.name");
+                }
+                """,
+                        """
+                class QueueConfig {
+                    @interface Value { String value(); }
+                    @Value("${ch.uetlib.job.check.single-primary-instance:ERROR}")
+                    String level;
+                    String name = System.getProperty("ch.uetlib.job.runner.instance.name");
+                }
+                """),
+                yaml(
+                        "ch.ubique.uetlib.job.check.single-primary-instance: WARN\n",
+                        "ch.uetlib.job.check.single-primary-instance: WARN\n",
+                        spec -> spec.path("src/main/resources/application.yml")),
+                text(
+                        "env:\n  - name: CH_UBIQUE_BACKEND_JOB_RUNNER_INSTANCE_NAME\n    value: worker\n",
+                        "env:\n  - name: CH_UETLIB_JOB_RUNNER_INSTANCE_NAME\n    value: worker\n",
+                        spec -> spec.path("deploy/deployment.yaml")));
+    }
+
     @Test
     void doesNotRewriteMavenGroupIdsThatLookLikePropertyPrefixes() {
         rewriteRun(
@@ -43,13 +117,13 @@ class MigrateConfigurationPropertiesTest implements RewriteTest {
     }
 
     @Override
-    public void defaults(RecipeSpec spec) {
+    public void defaults(final RecipeSpec spec) {
         spec.recipe(new MigrateConfigurationProperties());
     }
 
     @Test
     void migratesEveryKnownPrefixAndPreservesUnknownNamespaces() {
-        for (var entry : MigrateConfigurationProperties.PREFIXES) {
+        for (final var entry : MigrateConfigurationProperties.PREFIXES) {
             assertEquals(
                     entry.getValue() + ".some-value",
                     MigrateConfigurationProperties.migrateText(entry.getKey() + ".some-value"));
