@@ -15,7 +15,10 @@ import org.openrewrite.test.RewriteTest;
 class MigrateOwnedTypesTest implements RewriteTest {
     @Override
     public void defaults(final RecipeSpec spec) {
-        spec.recipeFromResources("ch.uetlib.MigrateToPublicUetlib");
+        // These fixtures test transformations without Maven projects; the combined
+        // recipe prerequisite is covered by RequireUetlibParentTest.
+        spec.recipeFromResources("ch.uetlib.MigratePackages");
+        spec.recipes(new MigrateConfigurationProperties(), spec.getRecipe());
     }
 
     @TestFactory
@@ -118,21 +121,21 @@ class MigrateOwnedTypesTest implements RewriteTest {
         rewriteRun(
                 java(
                         """
-                package example;
-                @interface ComponentScan { String[] value(); }
-                @interface ConfigurationProperties { String prefix(); }
-                @ComponentScan({"ch.ubique.backend.security", "ch.uetlib.cloud", "ch.uetlib.core"})
-                @ConfigurationProperties(prefix = "ch.ubique.backend.security")
-                class Config {}
-                """,
+                        package example;
+                        @interface ComponentScan { String[] value(); }
+                        @interface ConfigurationProperties { String prefix(); }
+                        @ComponentScan({"ch.ubique.backend.security", "ch.uetlib.cloud", "ch.uetlib.core"})
+                        @ConfigurationProperties(prefix = "ch.ubique.backend.security")
+                        class Config {}
+                        """,
                         """
-                package example;
-                @interface ComponentScan { String[] value(); }
-                @interface ConfigurationProperties { String prefix(); }
-                @ComponentScan({"ch.uetlib.spring.boot.security", "ch.uetlib.spring.cloud", "ch.uetlib.core"})
-                @ConfigurationProperties(prefix = "ch.ubique.backend.security")
-                class Config {}
-                """));
+                        package example;
+                        @interface ComponentScan { String[] value(); }
+                        @interface ConfigurationProperties { String prefix(); }
+                        @ComponentScan({"ch.uetlib.spring.boot.security", "ch.uetlib.spring.cloud", "ch.uetlib.core"})
+                        @ConfigurationProperties(prefix = "ch.ubique.backend.security")
+                        class Config {}
+                        """));
     }
 
     @Test

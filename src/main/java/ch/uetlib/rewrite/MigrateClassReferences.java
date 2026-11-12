@@ -1,16 +1,15 @@
 package ch.uetlib.rewrite;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** Moves class-name strings and package-scanning annotations without renaming property keys. */
 public class MigrateClassReferences extends Recipe {

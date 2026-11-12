@@ -18,8 +18,8 @@ class MigrateToPublicUetlibTest implements RewriteTest {
     void combinesCoordinateAndPackageMigrationWithoutPrivateResolution() {
         rewriteRun(
                 xml(
-                        "<project><dependencies><dependency><groupId>ch.ubique</groupId><artifactId>uetlib-core</artifactId><version>2.7.0</version></dependency></dependencies></project>",
-                        "<project><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.0.1</version></dependency></dependencies></project>",
+                        "<project><parent><groupId>ch.ubique</groupId><artifactId>uetlib-parent</artifactId><version>2026.10.1</version></parent><dependencies><dependency><groupId>ch.ubique</groupId><artifactId>uetlib-core</artifactId><version>2.7.0</version></dependency></dependencies></project>",
+                        "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.0</version></parent><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.0.1</version></dependency></dependencies></project>",
                         spec -> spec.path("pom.xml")),
                 java(
                         "package ch.ubique.backend.example; class Example {}",
