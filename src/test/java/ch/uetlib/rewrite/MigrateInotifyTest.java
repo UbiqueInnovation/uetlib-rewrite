@@ -20,8 +20,8 @@ class MigrateInotifyTest implements RewriteTest {
     void migratesOriginalCoordinatesDeclarationsImportsAndSourcePaths() {
         rewriteRun(
                 xml(
-                        "<project><dependencies><dependency><groupId>ch.ubique</groupId><artifactId>inotify</artifactId><version>2.0</version></dependency></dependencies></project>",
-                        "<project><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency></dependencies></project>",
+                        "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>ch.ubique</groupId><artifactId>inotify</artifactId><version>2.0</version></dependency></dependencies></project>",
+                        "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency></dependencies></project>",
                         spec -> spec.path("pom.xml")),
                 java(
                         "package com.den_4.inotify_java; public class NativeInotify {}",
@@ -57,32 +57,38 @@ class MigrateInotifyTest implements RewriteTest {
     @Test
     void migratesClassNameStringsAndScanningWhilePreservingPropertyNames() {
         rewriteRun(
+                xml(
+                        "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent></project>",
+                        spec -> spec.path("pom.xml")),
                 java(
                         """
-                package example;
-                @interface ComponentScan { String value(); }
-                @ComponentScan("com.den_4.inotify_java")
-                class Config {
-                    String type = "com.den_4.inotify_java.exceptions.InotifyException";
-                    String key = "com.den_4.inotify_java.enabled";
-                    String unrelated = "com.den_4.inotify_javaother.NativeInotify";
-                }
-                """,
+                        package example;
+                        @interface ComponentScan { String value(); }
+                        @ComponentScan("com.den_4.inotify_java")
+                        class Config {
+                            String type = "com.den_4.inotify_java.exceptions.InotifyException";
+                            String key = "com.den_4.inotify_java.enabled";
+                            String unrelated = "com.den_4.inotify_javaother.NativeInotify";
+                        }
+                        """,
                         """
-                package example;
-                @interface ComponentScan { String value(); }
-                @ComponentScan("ch.uetlib.inotify")
-                class Config {
-                    String type = "ch.uetlib.inotify.exceptions.InotifyException";
-                    String key = "com.den_4.inotify_java.enabled";
-                    String unrelated = "com.den_4.inotify_javaother.NativeInotify";
-                }
-                """));
+                        package example;
+                        @interface ComponentScan { String value(); }
+                        @ComponentScan("ch.uetlib.inotify")
+                        class Config {
+                            String type = "ch.uetlib.inotify.exceptions.InotifyException";
+                            String key = "com.den_4.inotify_java.enabled";
+                            String unrelated = "com.den_4.inotify_javaother.NativeInotify";
+                        }
+                        """));
     }
 
     @Test
     void migratesPropertiesYamlAndServiceRegistrations() {
         rewriteRun(
+                xml(
+                        "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent></project>",
+                        spec -> spec.path("pom.xml")),
                 text(
                         "com.den_4.inotify_java.enabled=true\nhandler=com.den_4.inotify_java.NativeInotify\n",
                         "com.den_4.inotify_java.enabled=true\nhandler=ch.uetlib.inotify.NativeInotify\n",
@@ -115,29 +121,29 @@ class MigrateInotifyTest implements RewriteTest {
         rewriteRun(
                 xml(
                         """
-                <project>
-                    <dependencyManagement><dependencies><dependency>
-                        <groupId>ch.ubique</groupId><artifactId>inotify</artifactId><version>${inotify.version}</version>
-                    </dependency></dependencies></dependencyManagement>
-                    <dependencies>
-                        <dependency><groupId>ch.ubique</groupId><artifactId>inotify</artifactId><scope>test</scope></dependency>
-                        <dependency><groupId>ch.ubique.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.2.0</version></dependency>
-                        <dependency><groupId>ch.ubique</groupId><artifactId>uetlib-inotify-java</artifactId><version>2.0</version></dependency>
-                    </dependencies>
-                </project>
-                """,
+                        <project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent>
+                            <dependencyManagement><dependencies><dependency>
+                                <groupId>ch.ubique</groupId><artifactId>inotify</artifactId><version>${inotify.version}</version>
+                            </dependency></dependencies></dependencyManagement>
+                            <dependencies>
+                                <dependency><groupId>ch.ubique</groupId><artifactId>inotify</artifactId><scope>test</scope></dependency>
+                                <dependency><groupId>ch.ubique.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.2.0</version></dependency>
+                                <dependency><groupId>ch.ubique</groupId><artifactId>uetlib-inotify-java</artifactId><version>2.0</version></dependency>
+                            </dependencies>
+                        </project>
+                        """,
                         """
-                <project>
-                    <dependencyManagement><dependencies><dependency>
-                        <groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version>
-                    </dependency></dependencies></dependencyManagement>
-                    <dependencies>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><scope>test</scope></dependency>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.2.0</version></dependency>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency>
-                    </dependencies>
-                </project>
-                """,
+                        <project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent>
+                            <dependencyManagement><dependencies><dependency>
+                                <groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version>
+                            </dependency></dependencies></dependencyManagement>
+                            <dependencies>
+                                <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><scope>test</scope></dependency>
+                                <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.2.0</version></dependency>
+                                <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency>
+                            </dependencies>
+                        </project>
+                        """,
                         spec -> spec.path("pom.xml")));
     }
 
@@ -146,11 +152,11 @@ class MigrateInotifyTest implements RewriteTest {
         rewriteRun(
                 xml(
                         """
-                <project><dependencies>
-                    <dependency><groupId>other</groupId><artifactId>inotify</artifactId><version>2.0</version></dependency>
-                    <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency>
-                </dependencies></project>
-                """,
+                        <project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies>
+                            <dependency><groupId>other</groupId><artifactId>inotify</artifactId><version>2.0</version></dependency>
+                            <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency>
+                        </dependencies></project>
+                        """,
                         spec -> spec.path("pom.xml")),
                 java("package com.den_4.inotify_javaother; class Unrelated {}"));
     }

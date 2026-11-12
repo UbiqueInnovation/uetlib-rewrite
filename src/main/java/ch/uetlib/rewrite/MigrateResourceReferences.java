@@ -10,6 +10,7 @@ import org.openrewrite.TreeVisitor;
 import org.openrewrite.text.PlainTextParser;
 
 /** Resource migration runs last because converting a file to text discards its language tree. */
+@SuppressWarnings("unused") // linked in uetlib-migration.yml
 public class MigrateResourceReferences extends Recipe {
     @Override
     public String getDisplayName() {
@@ -23,17 +24,17 @@ public class MigrateResourceReferences extends Recipe {
 
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
-        return new TreeVisitor<Tree, ExecutionContext>() {
+        return new TreeVisitor<>() {
             @Override
-            public Tree preVisit(Tree tree, ExecutionContext context) {
+            public Tree preVisit(final Tree tree, final ExecutionContext context) {
                 stopAfterPreVisit();
-                if (!(tree instanceof SourceFile source)) {
+                if (!(tree instanceof final SourceFile source)) {
                     return tree;
                 }
-                String path = "/" + source.getSourcePath().toString().replace('\\', '/');
-                String text = source.printAll();
-                String replacement;
-                String newPath = source.getSourcePath().toString();
+                final var path = "/" + source.getSourcePath().toString().replace('\\', '/');
+                final var text = source.printAll();
+                final String replacement;
+                var newPath = source.getSourcePath().toString();
                 if (path.contains("/META-INF/services/")
                         || path.contains("/META-INF/spring/") && path.endsWith(".imports")) {
                     replacement = MigrateClassReferences.packages(text);

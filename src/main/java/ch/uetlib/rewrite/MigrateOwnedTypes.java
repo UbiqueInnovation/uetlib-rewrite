@@ -1,7 +1,6 @@
 package ch.uetlib.rewrite;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -15,16 +14,18 @@ public class MigrateOwnedTypes extends Recipe {
     static final Map<String, String> TYPES = loadTypes();
 
     private static Map<String, String> loadTypes() {
-        Properties properties = new Properties();
-        try (InputStream input =
+        final var properties = new Properties();
+        try (final var input =
                 MigrateOwnedTypes.class.getResourceAsStream(
                         "/ch/uetlib/rewrite/type-migrations.properties")) {
-            if (input == null) throw new IllegalStateException("Missing uetlib type migrations");
+            if (input == null) {
+                throw new IllegalStateException("Missing uetlib type migrations");
+            }
             properties.load(input);
-        } catch (IOException exception) {
+        } catch (final IOException exception) {
             throw new IllegalStateException("Cannot load uetlib type migrations", exception);
         }
-        Map<String, String> result = new TreeMap<>();
+        final Map<String, String> result = new TreeMap<>();
         properties.forEach((key, value) -> result.put((String) key, (String) value));
         return result;
     }
