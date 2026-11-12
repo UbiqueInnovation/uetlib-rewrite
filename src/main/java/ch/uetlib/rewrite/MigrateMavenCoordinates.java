@@ -1,5 +1,14 @@
 package ch.uetlib.rewrite;
 
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Pattern;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.FindSourceFiles;
 import org.openrewrite.Preconditions;
@@ -9,12 +18,6 @@ import org.openrewrite.xml.XPathMatcher;
 import org.openrewrite.xml.XmlIsoVisitor;
 import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 /** Updates known uetlib coordinates without resolving the old private artifacts. */
 public class MigrateMavenCoordinates extends Recipe {
@@ -32,16 +35,14 @@ public class MigrateMavenCoordinates extends Recipe {
                     "uetlib-job");
 
     private static boolean beforePropertyApi(final String current, final String required) {
-        final var version =
-                java.util.regex.Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)").matcher(current);
+        final var version = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)").matcher(current);
         if (!version.find()) {
             return true;
         }
         final var minimum = required.split("\\.");
         for (var i = 0; i < 3; i++) {
             final var comparison =
-                    new java.math.BigInteger(version.group(i + 1))
-                            .compareTo(new java.math.BigInteger(minimum[i]));
+                    new BigInteger(version.group(i + 1)).compareTo(new BigInteger(minimum[i]));
             if (comparison != 0) {
                 return comparison < 0;
             }
@@ -89,8 +90,10 @@ public class MigrateMavenCoordinates extends Recipe {
         final var artifact = project.getChildValue("artifactId").orElse("");
         final var group =
                 project.getChildValue("groupId")
-                        .or(() ->
-                                project.getChild("parent").flatMap(p -> p.getChildValue("groupId")))
+                        .or(
+                                () ->
+                                        project.getChild("parent")
+                                                .flatMap(p -> p.getChildValue("groupId")))
                         .orElse("");
         final var uetlib = UETLIB_GROUPS.contains(group) && artifact.startsWith("uetlib-");
         final var wrapper =
@@ -110,8 +113,8 @@ public class MigrateMavenCoordinates extends Recipe {
                         // duplicates only when the entire migrated declaration is identical.
                         if ("dependencies".equals(updated.getName())
                                 && updated.getContent() != null) {
-                            final java.util.Set<String> seen = new java.util.HashSet<>();
-                            final java.util.List<Content> content = new ArrayList<>();
+                            final Set<String> seen = new HashSet<>();
+                            final List<Content> content = new ArrayList<>();
                             for (final var child : updated.getContent()) {
                                 if (child instanceof final Xml.Tag dependency
                                         && "ch.uetlib"
@@ -197,7 +200,7 @@ public class MigrateMavenCoordinates extends Recipe {
                         if ("dependency".equals(updated.getName())
                                 && "ch.ubique.datatrans"
                                         .equals(updated.getChildValue("groupId").orElse(null))
-                                && java.util.Set.of(
+                                && Set.of(
                                                 "datatrans-api-client-model",
                                                 "datatrans-api-client-service")
                                         .contains(updated.getChildValue("artifactId").orElse(""))) {

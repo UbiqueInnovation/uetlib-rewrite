@@ -2,6 +2,7 @@ package ch.uetlib.rewrite;
 
 import static org.openrewrite.xml.Assertions.xml;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
@@ -10,8 +11,8 @@ import org.openrewrite.test.RewriteTest;
 class MigrateMavenCoordinatesTest implements RewriteTest {
     @Test
     void upgradesQueuePrereleasesAcrossOriginalAndPublicGroups() {
-        for (final var group : java.util.List.of("ch.ubique", "ch.ubique.uetlib", "ch.uetlib")) {
-            for (final var version : java.util.List.of("6.0.0-alpha.1", "6.0.0-alpha.16")) {
+        for (final var group : List.of("ch.ubique", "ch.ubique.uetlib", "ch.uetlib")) {
+            for (final var version : List.of("6.0.0-alpha.1", "6.0.0-alpha.16")) {
                 rewriteRun(
                         xml(
                                 "<project><dependencies><dependency><groupId>"
