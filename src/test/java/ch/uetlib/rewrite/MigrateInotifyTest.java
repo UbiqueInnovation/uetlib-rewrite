@@ -8,9 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
 
+@SuppressWarnings("java:S2699")
 class MigrateInotifyTest implements RewriteTest {
+
     @Override
-    public void defaults(RecipeSpec spec) {
+    public void defaults(final RecipeSpec spec) {
         spec.recipeFromResources("ch.uetlib.MigrateToPublicUetlib");
     }
 
@@ -19,7 +21,7 @@ class MigrateInotifyTest implements RewriteTest {
         rewriteRun(
                 xml(
                         "<project><dependencies><dependency><groupId>ch.ubique</groupId><artifactId>inotify</artifactId><version>2.0</version></dependency></dependencies></project>",
-                        "<project><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.0</version></dependency></dependencies></project>",
+                        "<project><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency></dependencies></project>",
                         spec -> spec.path("pom.xml")),
                 java(
                         "package com.den_4.inotify_java; public class NativeInotify {}",
@@ -127,12 +129,12 @@ class MigrateInotifyTest implements RewriteTest {
                         """
                 <project>
                     <dependencyManagement><dependencies><dependency>
-                        <groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.0</version>
+                        <groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version>
                     </dependency></dependencies></dependencyManagement>
                     <dependencies>
                         <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><scope>test</scope></dependency>
                         <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.2.0</version></dependency>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.0</version></dependency>
+                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency>
                     </dependencies>
                 </project>
                 """,
@@ -146,7 +148,7 @@ class MigrateInotifyTest implements RewriteTest {
                         """
                 <project><dependencies>
                     <dependency><groupId>other</groupId><artifactId>inotify</artifactId><version>2.0</version></dependency>
-                    <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.0</version></dependency>
+                    <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency>
                 </dependencies></project>
                 """,
                         spec -> spec.path("pom.xml")),

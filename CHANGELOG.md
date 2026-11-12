@@ -1,12 +1,24 @@
 # Changelog
 
+## 0.1.3
+
+- Migrate job queue prerelease dependencies to 6.0.3, including intermediate and public coordinates.
+- Cover queue-specific configuration keys, Java references and deployment environment variables; document the removed
+  overlap-grace setting.
+
+## 0.1.2
+
+- Align public migration versions with the coordinated Central batch.
+
+- Target `ch.ubique.internal:ubique-spring-boot-starter-parent:4.1.2-2026.11.2` when migrating original Ubique Spring
+  Boot parents.
+
 ## 0.1.1
 
 - Require Java 25 for recipe execution.
 - Migrate known configuration properties in Java, properties, YAML and deployment resources.
 - Migrate legacy inotify coordinates and references, and rename the geo Spring Boot integration artifact and packages.
 - Update migration versions and add regression coverage.
-- Update shared Maven build and publish workflows to v0.2.4.
 
 - Rename uetlib configuration keys and property references to `ch.uetlib.*`, including Spring bindings, `@Value`,
   conditions, scheduling expressions and configuration files. Migrate external deployment configuration as well.
@@ -17,8 +29,7 @@
 - Migrate the recovered inotify dependency and original `com.den_4.inotify_java` packages, class references and resource
   registrations to the public inotify library.
 
-- Require Java 25 for building and running recipes; use the Java 25 parser for migration tests and the shared workflows'
-  Java 25 default.
+- Require Java 25 for building and running recipes; use the Java 25 parser for migration tests.
 
 - Move Java packages and class references from `ch.ubique.uetlib` to `ch.uetlib`.
 
