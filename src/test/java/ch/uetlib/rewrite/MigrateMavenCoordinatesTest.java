@@ -10,6 +10,19 @@ import org.openrewrite.test.RewriteTest;
 @SuppressWarnings("java:S2699")
 class MigrateMavenCoordinatesTest implements RewriteTest {
     @Test
+    void pinsInternalStarterVersionAcrossAllPublicGroups() {
+        for (final var group : List.of("ch.ubique", "ch.ubique.uetlib", "ch.uetlib")) {
+            rewriteRun(
+                    xml(
+                            "<project><parent><groupId>"
+                                    + group
+                                    + "</groupId><artifactId>uetlib-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.6</version></parent><artifactId>example-app</artifactId></project>",
+                            "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.4</version></parent><artifactId>example-app</artifactId></project>",
+                            spec -> spec.path("pom.xml")));
+        }
+    }
+
+    @Test
     void upgradesQueuePrereleasesAcrossOriginalAndPublicGroups() {
         for (final var group : List.of("ch.ubique", "ch.ubique.uetlib", "ch.uetlib")) {
             for (final var version : List.of("6.0.0-alpha.1", "6.0.0-alpha.16")) {
@@ -20,13 +33,13 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                                         + "</groupId><artifactId>uetlib-job</artifactId><version>"
                                         + version
                                         + "</version></dependency></dependencies></project>",
-                                "<project><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-job</artifactId><version>6.0.3</version></dependency></dependencies></project>",
+                                "<project><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-job</artifactId><version>6.0.5</version></dependency></dependencies></project>",
                                 spec -> spec.path("pom.xml")));
             }
         }
         rewriteRun(
                 xml(
-                        "<project><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-job</artifactId><version>6.0.3</version></dependency><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-job</artifactId><version>6.1.0</version></dependency><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-job</artifactId></dependency></dependencies></project>",
+                        "<project><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-job</artifactId><version>6.0.5</version></dependency><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-job</artifactId><version>6.1.0</version></dependency><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-job</artifactId></dependency></dependencies></project>",
                         spec -> spec.path("pom.xml")));
     }
 
@@ -101,15 +114,15 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                         """,
                         """
                         <project>
-                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.0</version></parent>
+                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.2</version></parent>
                             <artifactId>private-application</artifactId>
                             <dependencyManagement><dependencies>
-                                <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-self-bom</artifactId><version>6.0.2</version><type>pom</type><scope>import</scope></dependency>
+                                <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-self-bom</artifactId><version>6.0.6</version><type>pom</type><scope>import</scope></dependency>
                             </dependencies></dependencyManagement>
                             <dependencies>
                                 <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.0.1</version></dependency>
                                 <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-storage</artifactId></dependency>
-                                <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency>
+                                <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.3</version></dependency>
                             </dependencies>
                         </project>
                         """,
@@ -144,7 +157,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                             <parent>
                                 <groupId>ch.ubique.internal</groupId>
                                 <artifactId>ubique-spring-boot-starter-parent</artifactId>
-                                <version>4.1.2-2026.11.2</version>
+                                <version>4.1.2-2026.11.4</version>
                                 <relativePath/>
                             </parent>
                             <groupId>ch.ubique.example</groupId>
@@ -176,7 +189,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                         """,
                         """
                         <project>
-                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.0</version></parent>
+                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.2</version></parent>
                             <artifactId>example-lib</artifactId>
                             <dependencies>
                                 <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.0.1</version></dependency>
@@ -187,7 +200,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
     }
 
     @Test
-    void movesIntermediatePublicParentsOfInternalProjectsKeepingTheirVersion() {
+    void pinsBothInternalParentReleaseVersions() {
         rewriteRun(
                 xml(
                         """
@@ -198,7 +211,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                         """,
                         """
                         <project>
-                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.1</version></parent>
+                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.2</version></parent>
                             <artifactId>example-lib</artifactId>
                         </project>
                         """,
@@ -213,7 +226,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                         """,
                         """
                         <project>
-                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.1-2026.0.3-SNAPSHOT</version></parent>
+                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.4</version></parent>
                             <groupId>ch.ubique.example</groupId>
                             <artifactId>example-ws</artifactId>
                         </project>
@@ -251,7 +264,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                         """,
                         """
                         <project>
-                            <parent><groupId>ch.uetlib</groupId><artifactId>uetlib-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.3</version></parent>
+                            <parent><groupId>ch.uetlib</groupId><artifactId>uetlib-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.6</version></parent>
                             <artifactId>uetlib-testapp</artifactId>
                         </project>
                         """,
@@ -295,7 +308,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                 xml(
                         """
                         <project>
-                            <parent><groupId>ch.uetlib</groupId><artifactId>uetlib-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.3</version><relativePath/></parent>
+                            <parent><groupId>ch.uetlib</groupId><artifactId>uetlib-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.6</version><relativePath/></parent>
                             <groupId>ch.ubique.internal</groupId>
                             <artifactId>ubique-spring-boot-starter-parent</artifactId>
                             <version>4.1.1-2026.11.0</version>

@@ -94,8 +94,10 @@ BOMs move to `ch.uetlib`:
 | `uetlib-parent`                                         | `ch.ubique.internal:ubique-library-parent`             |
 | `uetlib-spring-boot-starter-parent`                     | `ch.ubique.internal:ubique-spring-boot-starter-parent` |
 
-Wrapper versions equal the public parent versions they wrap. Original `ch.ubique` parents are pinned to the configured
-migration versions (`2026.11.0` and `4.1.2-2026.11.2`); intermediate `ch.ubique.uetlib` parents keep their version.
+Migrated parents are pinned to the configured internal releases: library parent `2026.11.2` and starter-parent
+`4.1.2-2026.11.4`, for original, intermediate and public coordinates. Internal parent versions are selected
+independently
+of public parent versions; the public starter-parent target remains `4.1.2-2026.11.6`.
 Uetlib's own projects (`ch.ubique`, `ch.ubique.uetlib` or `ch.uetlib` groupId, own or inherited, with a `uetlib-*`
 artifactId) and the wrapper parents themselves keep the public parents.
 
@@ -130,7 +132,7 @@ Datatrans client credentials move to `ch.uetlib.payment.datatrans.client.*`; ada
 
 ## Inotify migration
 
-The combined recipe replaces `ch.ubique:inotify:2.0` with `ch.uetlib:uetlib-inotify-java:3.0.0`,
+The combined recipe replaces `ch.ubique:inotify:2.0` with `ch.uetlib:uetlib-inotify-java:3.0.3`,
 including dependencies in dependency management. Versionless dependencies remain versionless.
 It moves `com.den_4.inotify_java` and its subpackages to `ch.uetlib.inotify`, including imports,
 class-name strings, scanning annotations, properties/YAML values and service registrations.
@@ -165,7 +167,7 @@ newer versions are retained. Other intermediate artifacts keep their versions as
 
 ## Job queue prereleases
 
-For deployments using `uetlib-job:6.0.0-alpha.*`, the combined migration targets `ch.uetlib:uetlib-job:6.0.3`.
+For deployments using `uetlib-job:6.0.0-alpha.*`, the combined migration targets `ch.uetlib:uetlib-job:6.0.5`.
 This includes dependencies already using `ch.ubique.uetlib` or `ch.uetlib`; newer versions and versionless managed
 entries are preserved. Run the updated recipe only after the target job release is available.
 

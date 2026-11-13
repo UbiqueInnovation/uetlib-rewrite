@@ -155,10 +155,8 @@ public class MigrateMavenCoordinates extends Recipe {
                             updated =
                                     updated.withChildValue("groupId", INTERNAL_GROUP)
                                             .withChildValue("artifactId", internalParent);
-                            // Wrapper versions equal the public versions they wrap, so
-                            // intermediate ch.ubique.uetlib parents keep their version.
-                            if ("ch.ubique".equals(group)
-                                    && updated.getChild("version").isPresent()) {
+                            // Internal parents have independent release versions.
+                            if (updated.getChild("version").isPresent()) {
                                 updated =
                                         updated.withChildValue(
                                                 "version",
