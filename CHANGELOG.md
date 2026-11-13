@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0
+
+- Target self-bom `6.0.6`, public starter-parent `4.1.2-2026.11.6` and internal starter-parent `4.1.2-2026.11.4`.
+- Pin migrated parents to internal library parent `2026.11.2` and starter-parent `4.1.2-2026.11.4` instead of retaining
+  public versions.
+- Target inotify `3.0.3` and job `6.0.5` in the Maven coordinate migration.
+
 ## 0.1.5
 
 - Use shared Maven build and publish workflows at `v1.0.0` to enforce formatting checks in CI.
