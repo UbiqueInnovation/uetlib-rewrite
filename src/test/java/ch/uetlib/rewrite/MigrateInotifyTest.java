@@ -21,7 +21,7 @@ class MigrateInotifyTest implements RewriteTest {
         rewriteRun(
                 xml(
                         "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>ch.ubique</groupId><artifactId>inotify</artifactId><version>2.0</version></dependency></dependencies></project>",
-                        "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency></dependencies></project>",
+                        "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.3</version></dependency></dependencies></project>",
                         spec -> spec.path("pom.xml")),
                 java(
                         "package com.den_4.inotify_java; public class NativeInotify {}",
@@ -135,12 +135,12 @@ class MigrateInotifyTest implements RewriteTest {
                         """
                         <project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent>
                             <dependencyManagement><dependencies><dependency>
-                                <groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version>
+                                <groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.3</version>
                             </dependency></dependencies></dependencyManagement>
                             <dependencies>
                                 <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><scope>test</scope></dependency>
                                 <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.2.0</version></dependency>
-                                <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency>
+                                <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.3</version></dependency>
                             </dependencies>
                         </project>
                         """,
@@ -154,7 +154,7 @@ class MigrateInotifyTest implements RewriteTest {
                         """
                         <project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies>
                             <dependency><groupId>other</groupId><artifactId>inotify</artifactId><version>2.0</version></dependency>
-                            <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.2</version></dependency>
+                            <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.3</version></dependency>
                         </dependencies></project>
                         """,
                         spec -> spec.path("pom.xml")),
