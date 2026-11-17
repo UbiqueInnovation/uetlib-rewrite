@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+
+- Use shared Maven workflows at `v1.1.0`.
+
 ## 0.2.0
 
 - Target self-bom `6.0.6`, public starter-parent `4.1.2-2026.11.6` and internal starter-parent `4.1.2-2026.11.4`.
