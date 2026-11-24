@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.0
+
+- Target internal parents `ubique-library-parent:2026.11.5` and
+  `ubique-spring-boot-starter-parent:4.2.0-2026.11.8` in the migration.
+
+- Support projects inheriting Spring Boot's own `spring-boot-starter-parent` from `4.0.0` in the combined migration.
+  Replace it with the uetlib starter-parent, remove redundant uetlib dependency management and module dependency
+  versions, and keep custom Spring Boot/Jib plugin configuration while dropping versions, executions and `mainClass`.
+  Remove parent-supplied Java, encoding, JaCoCo and Sonar properties, including `maven.compiler.release`, and comments
+  left without content. Set `sonar.coverage.module`, configure its aggregation module and report missing explicit
+  null marking as warnings.
+- Update the public migration release map to the latest published releases, including self-BOM `6.1.0`,
+  Error Prone `1.0.0`, job `6.1.0` and starter-parent `4.2.0-2026.11.8`.
+
 ## 0.2.1
 
 - Build pull requests, including forks, and pushes to `main` instead of every branch push; use shared Maven

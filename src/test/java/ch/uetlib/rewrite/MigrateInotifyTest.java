@@ -21,20 +21,17 @@ class MigrateInotifyTest implements RewriteTest {
         rewriteRun(
                 xml(
                         "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>ch.ubique</groupId><artifactId>inotify</artifactId><version>2.0</version></dependency></dependencies></project>",
-                        "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.3</version></dependency></dependencies></project>",
+                        "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.1.0</version></dependency></dependencies></project>",
                         spec -> spec.path("pom.xml")),
                 java(
                         "package com.den_4.inotify_java; public class NativeInotify {}",
                         "package ch.uetlib.inotify; public class NativeInotify {}",
                         spec ->
                                 spec.path("src/main/java/com/den_4/inotify_java/NativeInotify.java")
-                                        .afterRecipe(
-                                                source ->
-                                                        org.junit.jupiter.api.Assertions
-                                                                .assertEquals(
-                                                                        "src/main/java/ch/uetlib/inotify/NativeInotify.java",
-                                                                        source.getSourcePath()
-                                                                                .toString()))),
+                                        .afterRecipe(source ->
+                                                org.junit.jupiter.api.Assertions.assertEquals(
+                                                        "src/main/java/ch/uetlib/inotify/NativeInotify.java",
+                                                        source.getSourcePath().toString()))),
                 java(
                         """
                         package example;
@@ -107,13 +104,10 @@ class MigrateInotifyTest implements RewriteTest {
                         spec ->
                                 spec.path(
                                                 "src/main/resources/META-INF/services/com.den_4.inotify_java.Inotify")
-                                        .afterRecipe(
-                                                source ->
-                                                        org.junit.jupiter.api.Assertions
-                                                                .assertEquals(
-                                                                        "src/main/resources/META-INF/services/ch.uetlib.inotify.Inotify",
-                                                                        source.getSourcePath()
-                                                                                .toString()))));
+                                        .afterRecipe(source ->
+                                                org.junit.jupiter.api.Assertions.assertEquals(
+                                                        "src/main/resources/META-INF/services/ch.uetlib.inotify.Inotify",
+                                                        source.getSourcePath().toString()))));
     }
 
     @Test
@@ -135,12 +129,12 @@ class MigrateInotifyTest implements RewriteTest {
                         """
                         <project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent>
                             <dependencyManagement><dependencies><dependency>
-                                <groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.3</version>
+                                <groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.1.0</version>
                             </dependency></dependencies></dependencyManagement>
                             <dependencies>
                                 <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><scope>test</scope></dependency>
                                 <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.2.0</version></dependency>
-                                <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.3</version></dependency>
+                                <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.1.0</version></dependency>
                             </dependencies>
                         </project>
                         """,
@@ -154,7 +148,7 @@ class MigrateInotifyTest implements RewriteTest {
                         """
                         <project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies>
                             <dependency><groupId>other</groupId><artifactId>inotify</artifactId><version>2.0</version></dependency>
-                            <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.0.3</version></dependency>
+                            <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-inotify-java</artifactId><version>3.1.0</version></dependency>
                         </dependencies></project>
                         """,
                         spec -> spec.path("pom.xml")),

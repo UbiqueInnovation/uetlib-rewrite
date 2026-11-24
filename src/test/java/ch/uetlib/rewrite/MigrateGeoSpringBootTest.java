@@ -21,53 +21,50 @@ class MigrateGeoSpringBootTest implements RewriteTest {
     @TestFactory
     Stream<DynamicTest> migratesOriginalAndIntermediateCoordinatesAndPackages() {
         return Stream.of("ch.ubique", "ch.ubique.uetlib", "ch.uetlib")
-                .map(
-                        group ->
-                                DynamicTest.dynamicTest(
-                                        group,
-                                        () -> {
-                                            final var oldPackage =
-                                                    "ch.ubique".equals(group)
-                                                            ? "ch.ubique.backend.spring.boot.geo"
-                                                            : group + ".spring.boot.geo";
-                                            final var version =
-                                                    "ch.ubique".equals(group) ? "4.0.3" : "5.1.0";
-                                            rewriteRun(
-                                                    xml(
-                                                            "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>"
-                                                                    + group
-                                                                    + "</groupId><artifactId>uetlib-spring-boot-geo</artifactId><version>5.1.0</version></dependency></dependencies></project>",
-                                                            "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId><version>"
-                                                                    + version
-                                                                    + "</version></dependency></dependencies></project>",
-                                                            spec -> spec.path("pom.xml")),
-                                                    java(
-                                                            "package "
-                                                                    + oldPackage
-                                                                    + ".springdoc; public class Config {}",
-                                                            "package ch.uetlib.geo.spring.boot.springdoc; public class Config {}"),
-                                                    java(
-                                                            "package example; import "
-                                                                    + oldPackage
-                                                                    + ".springdoc.Config; class Consumer { Config config; String type = \""
-                                                                    + oldPackage
-                                                                    + ".springdoc.Config\"; }",
-                                                            "package example; import ch.uetlib.geo.spring.boot.springdoc.Config; class Consumer { Config config; String type = \"ch.uetlib.geo.spring.boot.springdoc.Config\"; }"),
-                                                    text(
-                                                            oldPackage + ".springdoc.Config\n",
-                                                            "ch.uetlib.geo.spring.boot.springdoc.Config\n",
-                                                            spec ->
-                                                                    spec.path(
-                                                                            "src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")),
-                                                    text(
-                                                            "handler="
-                                                                    + oldPackage
-                                                                    + ".springdoc.Config\n",
-                                                            "handler=ch.uetlib.geo.spring.boot.springdoc.Config\n",
-                                                            spec ->
-                                                                    spec.path(
-                                                                            "src/main/resources/application.properties")));
-                                        }));
+                .map(group ->
+                        DynamicTest.dynamicTest(
+                                group,
+                                () -> {
+                                    final var oldPackage =
+                                            "ch.ubique".equals(group)
+                                                    ? "ch.ubique.backend.spring.boot.geo"
+                                                    : group + ".spring.boot.geo";
+                                    final var version =
+                                            "ch.ubique".equals(group) ? "4.1.0" : "5.1.0";
+                                    rewriteRun(
+                                            xml(
+                                                    "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>"
+                                                            + group
+                                                            + "</groupId><artifactId>uetlib-spring-boot-geo</artifactId><version>5.1.0</version></dependency></dependencies></project>",
+                                                    "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId><version>"
+                                                            + version
+                                                            + "</version></dependency></dependencies></project>",
+                                                    spec -> spec.path("pom.xml")),
+                                            java(
+                                                    "package "
+                                                            + oldPackage
+                                                            + ".springdoc; public class Config {}",
+                                                    "package ch.uetlib.geo.spring.boot.springdoc; public class Config {}"),
+                                            java(
+                                                    "package example; import "
+                                                            + oldPackage
+                                                            + ".springdoc.Config; class Consumer { Config config; String type = \""
+                                                            + oldPackage
+                                                            + ".springdoc.Config\"; }",
+                                                    "package example; import ch.uetlib.geo.spring.boot.springdoc.Config; class Consumer { Config config; String type = \"ch.uetlib.geo.spring.boot.springdoc.Config\"; }"),
+                                            text(
+                                                    oldPackage + ".springdoc.Config\n",
+                                                    "ch.uetlib.geo.spring.boot.springdoc.Config\n",
+                                                    spec ->
+                                                            spec.path(
+                                                                    "src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")),
+                                            text(
+                                                    "handler=" + oldPackage + ".springdoc.Config\n",
+                                                    "handler=ch.uetlib.geo.spring.boot.springdoc.Config\n",
+                                                    spec ->
+                                                            spec.path(
+                                                                    "src/main/resources/application.properties")));
+                                }));
     }
 
     @Test
@@ -75,24 +72,24 @@ class MigrateGeoSpringBootTest implements RewriteTest {
         rewriteRun(
                 xml(
                         """
-                                <project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent>
-                                    <dependencyManagement><dependencies><dependency>
-                                        <groupId>ch.ubique</groupId><artifactId>uetlib-spring-boot-geo</artifactId><version>2.0.0</version>
-                                    </dependency></dependencies></dependencyManagement>
-                                    <dependencies><dependency><groupId>ch.ubique</groupId><artifactId>uetlib-spring-boot-geo</artifactId></dependency></dependencies>
-                                </project>
-                                """,
+                        <project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent>
+                            <dependencyManagement><dependencies><dependency>
+                                <groupId>ch.ubique</groupId><artifactId>uetlib-spring-boot-geo</artifactId><version>2.0.0</version>
+                            </dependency></dependencies></dependencyManagement>
+                            <dependencies><dependency><groupId>ch.ubique</groupId><artifactId>uetlib-spring-boot-geo</artifactId></dependency></dependencies>
+                        </project>
+                        """,
                         """
-                                <project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent>
-                                    <dependencyManagement><dependencies><dependency>
-                                        <groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId><version>4.0.3</version>
-                                    </dependency></dependencies></dependencyManagement>
-                                    <dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId></dependency></dependencies>
-                                </project>
-                                """,
+                        <project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent>
+                            <dependencyManagement><dependencies><dependency>
+                                <groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId><version>4.1.0</version>
+                            </dependency></dependencies></dependencyManagement>
+                            <dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId></dependency></dependencies>
+                        </project>
+                        """,
                         spec -> spec.path("pom.xml")),
                 xml(
-                        "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId><version>4.0.3</version></dependency></dependencies></project>",
+                        "<project><parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-spring-boot-starter-parent</artifactId><version>4.1.2-2026.11.2</version></parent><dependencies><dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-geo-spring-boot</artifactId><version>4.1.0</version></dependency></dependencies></project>",
                         spec -> spec.path("ready/pom.xml")),
                 java("package ch.uetlib.geo.spring.boot; class AlreadyMigrated {}"));
     }

@@ -47,24 +47,21 @@ class MigratePackagesTest implements RewriteTest {
         rewriteRun(
                 java(
                         """
-                package ch.ubique.backend.core;
+                        package ch.ubique.backend.core;
 
-                public class Example {}
-                """,
+                        public class Example {}
+                        """,
                         """
-                package ch.uetlib.core;
+                        package ch.uetlib.core;
 
-                public class Example {}
-                """,
+                        public class Example {}
+                        """,
                         spec ->
                                 spec.path("src/main/java/ch/ubique/backend/core/Example.java")
-                                        .afterRecipe(
-                                                source ->
-                                                        org.junit.jupiter.api.Assertions
-                                                                .assertEquals(
-                                                                        "src/main/java/ch/uetlib/core/Example.java",
-                                                                        source.getSourcePath()
-                                                                                .toString()))));
+                                        .afterRecipe(source ->
+                                                org.junit.jupiter.api.Assertions.assertEquals(
+                                                        "src/main/java/ch/uetlib/core/Example.java",
+                                                        source.getSourcePath().toString()))));
     }
 
     @Test

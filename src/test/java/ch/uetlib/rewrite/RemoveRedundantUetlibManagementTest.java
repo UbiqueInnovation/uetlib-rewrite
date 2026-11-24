@@ -40,22 +40,22 @@ class RemoveRedundantUetlibManagementTest implements RewriteTest {
                 pomXml(
                         HEADER
                                 + """
-                    <properties><core.version>3.0.2</core.version></properties>
-                    <dependencyManagement><dependencies>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>${core.version}</version></dependency>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-job</artifactId><version>7.0.0</version></dependency>
-                        <dependency><groupId>example</groupId><artifactId>other</artifactId><version>1</version></dependency>
-                    </dependencies></dependencyManagement>
-                </project>
-                """,
+                                    <properties><core.version>3.0.2</core.version></properties>
+                                    <dependencyManagement><dependencies>
+                                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>${core.version}</version></dependency>
+                                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-job</artifactId><version>7.0.0</version></dependency>
+                                        <dependency><groupId>example</groupId><artifactId>other</artifactId><version>1</version></dependency>
+                                    </dependencies></dependencyManagement>
+                                </project>
+                                """,
                         HEADER
                                 + """
-                    <properties><core.version>3.0.2</core.version></properties>
-                    <dependencyManagement><dependencies>
-                        <dependency><groupId>example</groupId><artifactId>other</artifactId><version>1</version></dependency>
-                    </dependencies></dependencyManagement>
-                </project>
-                """,
+                                    <properties><core.version>3.0.2</core.version></properties>
+                                    <dependencyManagement><dependencies>
+                                        <dependency><groupId>example</groupId><artifactId>other</artifactId><version>1</version></dependency>
+                                    </dependencies></dependencyManagement>
+                                </project>
+                                """,
                         spec -> spec.path("app/pom.xml")));
     }
 
@@ -93,13 +93,13 @@ class RemoveRedundantUetlibManagementTest implements RewriteTest {
                 pomXml(
                         HEADER
                                 + """
-                    <dependencyManagement><dependencies>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.0.2</version><exclusions><exclusion><groupId>example</groupId><artifactId>excluded</artifactId></exclusion></exclusions></dependency>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-job</artifactId><version>6.0.3</version><classifier>tests</classifier></dependency>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-unmanaged</artifactId><version>1</version></dependency>
-                    </dependencies></dependencyManagement>
-                </project>
-                """,
+                                    <dependencyManagement><dependencies>
+                                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.0.2</version><exclusions><exclusion><groupId>example</groupId><artifactId>excluded</artifactId></exclusion></exclusions></dependency>
+                                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-job</artifactId><version>6.0.3</version><classifier>tests</classifier></dependency>
+                                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-unmanaged</artifactId><version>1</version></dependency>
+                                    </dependencies></dependencyManagement>
+                                </project>
+                                """,
                         spec -> spec.path("app/pom.xml")));
     }
 
@@ -107,33 +107,33 @@ class RemoveRedundantUetlibManagementTest implements RewriteTest {
     void preservesEffectiveVersionAndLocalBomImports() {
         org.openrewrite.maven.Assertions.withLocalRepository(
                 """
-                        <project>
-                            <modelVersion>4.0.0</modelVersion>
-                            <groupId>example</groupId><artifactId>override-bom</artifactId><version>1</version><packaging>pom</packaging>
-                            <dependencyManagement><dependencies>
-                                <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.0.1</version></dependency>
-                            </dependencies></dependencyManagement>
-                        </project>
-                        """,
+                <project>
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>example</groupId><artifactId>override-bom</artifactId><version>1</version><packaging>pom</packaging>
+                    <dependencyManagement><dependencies>
+                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.1.0</version></dependency>
+                    </dependencies></dependencyManagement>
+                </project>
+                """,
                 () ->
                         rewriteRun(
                                 pomXml(PARENT, spec -> spec.path("pom.xml")),
                                 pomXml(
                                         HEADER
                                                 + """
-                    <dependencyManagement><dependencies>
-                        <dependency><groupId>example</groupId><artifactId>override-bom</artifactId><version>1</version><type>pom</type><scope>import</scope></dependency>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.0.2</version></dependency>
-                    </dependencies></dependencyManagement>
-                </project>
-                """,
+                                                    <dependencyManagement><dependencies>
+                                                        <dependency><groupId>example</groupId><artifactId>override-bom</artifactId><version>1</version><type>pom</type><scope>import</scope></dependency>
+                                                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.0.2</version></dependency>
+                                                    </dependencies></dependencyManagement>
+                                                </project>
+                                                """,
                                         HEADER
                                                 + """
-                    <dependencyManagement><dependencies>
-                        <dependency><groupId>example</groupId><artifactId>override-bom</artifactId><version>1</version><type>pom</type><scope>import</scope></dependency>
-                    </dependencies></dependencyManagement>
-                </project>
-                """,
+                                                    <dependencyManagement><dependencies>
+                                                        <dependency><groupId>example</groupId><artifactId>override-bom</artifactId><version>1</version><type>pom</type><scope>import</scope></dependency>
+                                                    </dependencies></dependencyManagement>
+                                                </project>
+                                                """,
                                         spec -> spec.path("app/pom.xml"))));
     }
 
@@ -143,11 +143,11 @@ class RemoveRedundantUetlibManagementTest implements RewriteTest {
                 xml(
                         HEADER
                                 + """
-                    <dependencyManagement><dependencies>
-                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.0.2</version></dependency>
-                    </dependencies></dependencyManagement>
-                </project>
-                """,
+                                    <dependencyManagement><dependencies>
+                                        <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.0.2</version></dependency>
+                                    </dependencies></dependencyManagement>
+                                </project>
+                                """,
                         spec -> spec.path("pom.xml")));
     }
 }

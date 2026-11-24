@@ -31,10 +31,11 @@ recipeList:
 type: specs.openrewrite.org/v1beta/recipe
 name: ch.uetlib.MigrateToPublicUetlib
 displayName: Migrate to public uetlib releases
-description: Update Maven coordinates and release versions, Java packages and resource references for the first public uetlib releases. Projects outside uetlib move their uetlib parent to the Ubique-internal parent.
+description: Update Maven coordinates and release versions, Java packages and resource references for the first public uetlib releases. Projects on Spring Boot's starter-parent move to the uetlib starter-parent. Projects outside uetlib move their uetlib parent to the Ubique-internal parent.
 recipeList:
   - ch.uetlib.rewrite.RequireUetlibParent
   - ch.uetlib.rewrite.RemoveRedundantUetlibManagement
+  - ch.uetlib.rewrite.MigrateSpringBootStarterParent
   - ch.uetlib.rewrite.MigrateMavenCoordinates
   - ch.uetlib.rewrite.MigrateConfigurationProperties
   - ch.uetlib.MigratePackages

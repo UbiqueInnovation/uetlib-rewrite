@@ -44,13 +44,12 @@ public class MigrateOwnedTypes extends Recipe {
     public List<Recipe> getRecipeList() {
         return TYPES.entrySet().stream()
                 .sorted(Comparator.comparing(entry -> !entry.getKey().contains("$")))
-                .map(
-                        entry ->
-                                (Recipe)
-                                        new ChangeType(
-                                                entry.getKey(),
-                                                entry.getValue(),
-                                                entry.getKey().contains("$")))
+                .map(entry ->
+                        (Recipe)
+                                new ChangeType(
+                                        entry.getKey(),
+                                        entry.getValue(),
+                                        entry.getKey().contains("$")))
                 .toList();
     }
 }
