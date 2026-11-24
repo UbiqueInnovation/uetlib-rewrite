@@ -21,7 +21,7 @@ import org.openrewrite.xml.tree.Xml;
 
 /** Updates known uetlib coordinates without resolving the old private artifacts. */
 public class MigrateMavenCoordinates extends Recipe {
-    private static final Properties RELEASES = releases();
+    static final Properties RELEASES = releases();
     private static final Set<String> UETLIB_GROUPS =
             Set.of("ch.ubique", "ch.ubique.uetlib", "ch.uetlib");
     private static final String INTERNAL_GROUP = "ch.ubique.internal";
@@ -90,10 +90,8 @@ public class MigrateMavenCoordinates extends Recipe {
         final var artifact = project.getChildValue("artifactId").orElse("");
         final var group =
                 project.getChildValue("groupId")
-                        .or(
-                                () ->
-                                        project.getChild("parent")
-                                                .flatMap(p -> p.getChildValue("groupId")))
+                        .or(() ->
+                                project.getChild("parent").flatMap(p -> p.getChildValue("groupId")))
                         .orElse("");
         final var uetlib = UETLIB_GROUPS.contains(group) && artifact.startsWith("uetlib-");
         final var wrapper =

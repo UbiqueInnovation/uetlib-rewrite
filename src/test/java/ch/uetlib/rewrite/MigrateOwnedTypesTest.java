@@ -25,21 +25,14 @@ class MigrateOwnedTypesTest implements RewriteTest {
     Stream<DynamicTest> movesEveryKnownTypeFromOriginalAndIntermediateNamespaces() {
         return MigrateOwnedTypes.TYPES.entrySet().stream()
                 .filter(entry -> !entry.getKey().contains("$"))
-                .flatMap(
-                        entry ->
-                                Stream.of(
-                                                entry.getKey(),
-                                                entry.getKey()
-                                                        .replace("ch.uetlib", "ch.ubique.backend"))
-                                        .map(
-                                                old ->
-                                                        DynamicTest.dynamicTest(
-                                                                old,
-                                                                () ->
-                                                                        assertTypeMoves(
-                                                                                old,
-                                                                                entry
-                                                                                        .getValue()))));
+                .flatMap(entry ->
+                        Stream.of(
+                                        entry.getKey(),
+                                        entry.getKey().replace("ch.uetlib", "ch.ubique.backend"))
+                                .map(old ->
+                                        DynamicTest.dynamicTest(
+                                                old,
+                                                () -> assertTypeMoves(old, entry.getValue()))));
     }
 
     private void assertTypeMoves(final String old, final String target) {
@@ -61,14 +54,12 @@ class MigrateOwnedTypesTest implements RewriteTest {
                         "package " + newPackage + "; public class " + name + " {}",
                         source ->
                                 source.path("src/main/java/" + old.replace('.', '/') + ".java")
-                                        .afterRecipe(
-                                                result ->
-                                                        assertEquals(
-                                                                "src/main/java/"
-                                                                        + target.replace('.', '/')
-                                                                        + ".java",
-                                                                result.getSourcePath()
-                                                                        .toString()))),
+                                        .afterRecipe(result ->
+                                                assertEquals(
+                                                        "src/main/java/"
+                                                                + target.replace('.', '/')
+                                                                + ".java",
+                                                        result.getSourcePath().toString()))),
                 java(consumer.formatted(old, name), consumer.formatted(target, name)));
     }
 
@@ -201,12 +192,10 @@ class MigrateOwnedTypesTest implements RewriteTest {
                         spec ->
                                 spec.path(
                                                 "src/main/resources/META-INF/services/ch.uetlib.core.jackson.JacksonEnumToStringConverterFactory")
-                                        .afterRecipe(
-                                                source ->
-                                                        assertEquals(
-                                                                "src/main/resources/META-INF/services/ch.uetlib.spring.boot.jackson.JacksonEnumToStringConverterFactory",
-                                                                source.getSourcePath()
-                                                                        .toString()))),
+                                        .afterRecipe(source ->
+                                                assertEquals(
+                                                        "src/main/resources/META-INF/services/ch.uetlib.spring.boot.jackson.JacksonEnumToStringConverterFactory",
+                                                        source.getSourcePath().toString()))),
                 text(
                         "type=ch.uetlib.security.JwtUtil\nch.ubique.backend.security.enabled=true\n",
                         "type=ch.uetlib.spring.boot.security.JwtUtil\nch.ubique.backend.security.enabled=true\n",

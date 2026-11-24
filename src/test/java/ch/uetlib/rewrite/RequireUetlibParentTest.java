@@ -19,7 +19,7 @@ import org.openrewrite.xml.XmlParser;
 
 class RequireUetlibParentTest {
     @Test
-    void acceptsBothParentFamiliesAndAlreadyMigratedWrappers() {
+    void acceptsBothParentFamiliesWrappersAndSpringBootParent() {
         for (final var group : List.of("ch.ubique", "ch.ubique.uetlib", "ch.uetlib")) {
             for (final var parent : List.of("uetlib-parent", "uetlib-spring-boot-starter-parent")) {
                 assertAccepts(pom("pom.xml", group, parent, "1"));
@@ -29,6 +29,10 @@ class RequireUetlibParentTest {
                 List.of("ubique-library-parent", "ubique-spring-boot-starter-parent")) {
             assertAccepts(pom("pom.xml", "ch.ubique.internal", parent, "1"));
         }
+        assertAccepts(
+                pom("pom.xml", "org.springframework.boot", "spring-boot-starter-parent", "4.2.0"));
+        assertAccepts(
+                pom("pom.xml", "org.springframework.boot", "spring-boot-starter-parent", "4.0.0"));
     }
 
     @Test
@@ -43,8 +47,10 @@ class RequireUetlibParentTest {
         for (final var parent :
                 List.of(
                         "",
-                        "<parent><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-parent</artifactId><version>4.1.2</version></parent>",
-                        "<parent><groupId>example</groupId><artifactId>uetlib-parent</artifactId><version>1</version></parent>")) {
+                        "<parent><groupId>example</groupId><artifactId>spring-boot-starter-parent</artifactId><version>4.1.2</version></parent>",
+                        "<parent><groupId>example</groupId><artifactId>uetlib-parent</artifactId><version>1</version></parent>",
+                        "<parent><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-parent</artifactId><version>3.5.9</version></parent>",
+                        "<parent><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-parent</artifactId><version>4.0.0-RC1</version></parent>")) {
             final var errors = new ArrayList<Throwable>();
             final var context = new InMemoryExecutionContext(errors::add);
             final var sources = new ArrayList<SourceFile>();

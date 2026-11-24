@@ -98,10 +98,9 @@ public class RemoveRedundantUetlibManagement extends Recipe {
                     final var updatedDependencies =
                             dependencies.withContent(
                                     dependencies.getContent().stream()
-                                            .filter(
-                                                    c ->
-                                                            !(c instanceof Xml.Tag tag)
-                                                                    || !remove.contains(key(tag)))
+                                            .filter(c ->
+                                                    !(c instanceof Xml.Tag tag)
+                                                            || !remove.contains(key(tag)))
                                             .toList());
                     final var management =
                             document.getRoot().getChild("dependencyManagement").orElseThrow();
@@ -126,12 +125,11 @@ public class RemoveRedundantUetlibManagement extends Recipe {
         return pom.getRequested()
                 .withDependencyManagement(
                         pom.getRequested().getDependencyManagement().stream()
-                                .filter(
-                                        d ->
-                                                !remove.contains(
-                                                        pom.getValue(d.getGroupId())
-                                                                + ":"
-                                                                + pom.getValue(d.getArtifactId())))
+                                .filter(d ->
+                                        !remove.contains(
+                                                pom.getValue(d.getGroupId())
+                                                        + ":"
+                                                        + pom.getValue(d.getArtifactId())))
                                 .toList());
     }
 

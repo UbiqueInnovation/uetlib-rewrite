@@ -65,11 +65,69 @@ version for repeatable migrations.
 The resource migration includes `application.properties` and other `.properties`, YAML and XML files: class-name values
 are updated, and the combined migration also updates known configuration keys and placeholders.
 
-The combined `MigrateToPublicUetlib` recipe requires every Maven project to inherit either `uetlib-parent` or
-`uetlib-spring-boot-starter-parent` (legacy, intermediate or public coordinates), or the corresponding
-`ch.ubique.internal` wrapper. Local reactor parent chains are supported. A missing or unrelated parent aborts the whole
-migration before files are written; Spring Boot's own `org.springframework.boot:spring-boot-starter-parent` alone does
-not meet this requirement. The package-only and configuration-only recipes remain usable independently.
+The combined `MigrateToPublicUetlib` recipe requires every Maven project to inherit `uetlib-parent` or
+`uetlib-spring-boot-starter-parent` (legacy, intermediate or public coordinates), the corresponding
+`ch.ubique.internal` wrapper, or Spring Boot's own `org.springframework.boot:spring-boot-starter-parent` version
+`4.0.0` or newer. Older Spring Boot projects must upgrade separately before running this migration. Local reactor
+parent chains are supported. A missing or unrelated parent aborts the whole migration before files are written. The
+package-only and configuration-only recipes remain usable independently.
+
+### Spring Boot starter-parent
+
+`ch.uetlib.rewrite.MigrateSpringBootStarterParent`, part of the combined recipe, replaces
+`org.springframework.boot:spring-boot-starter-parent` with `ch.uetlib:uetlib-spring-boot-starter-parent`; projects
+outside uetlib then move on to the Ubique-internal parent as below. In each POM whose parent it replaces, it:
+
+- removes uetlib BOM and self-bom imports and plain pinned `uetlib-*` entries from dependency management, since the
+  parent manages them; customised entries, for example with exclusions, keep their settings without the version;
+- removes the `java.version`, `maven.compiler.release`, `project.build.sourceEncoding`, `jacoco.version` and `sonar.*`
+  properties, which the parent supplies, and comments left without content;
+- removes redundant Spring Boot and Jib plugin-management versions, executions and `mainClass`, preserving other
+  configuration and plugin dependencies; removes the JaCoCo plugin supplied by the parent and empty `build` sections;
+- sets `sonar.coverage.module` to the project's `artifactId` with `-backend` replaced by `-coverage`;
+- adds `<explicit-null-marking-level>WARN</explicit-null-marking-level>` unless the project sets a level already.
+
+The module with that coverage `artifactId` and the migrated POM as parent gets exactly this `build` section, replacing
+any existing one:
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>report-aggregate</id>
+                    <phase>verify</phase>
+                    <goals>
+                        <goal>report-aggregate</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+In the migrated POM and the modules inheriting it directly, `spring-boot-maven-plugin` and `jib-maven-plugin`
+declarations drop their versions, executions and `mainClass`, preserving other configuration such as excludes, layers
+and image settings. Managed uetlib dependencies in those modules lose their explicit versions, retaining exclusions
+and other dependency settings. Other plugins are kept. Plugins with no custom settings reduce to:
+
+```xml
+<plugin>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-maven-plugin</artifactId>
+</plugin>
+<plugin>
+    <groupId>com.google.cloud.tools</groupId>
+    <artifactId>jib-maven-plugin</artifactId>
+</plugin>
+```
+
+Modules are not changed otherwise. Check that the coverage module exists and
+remove properties that became unused, such as former BOM version properties.
 
 Before migrating coordinates, the combined recipe removes plain `uetlib-*` dependency-management entries whenever the
 parent manages the artifact, regardless of whether the local pin is older, equal or newer. The migration deliberately
@@ -80,7 +138,7 @@ XML-only migrations leave dependency management intact rather than guessing whic
 Review `target/rewrite/rewrite.patch`. To apply it, replace `:dryRun` with `:run`, then build and test the application.
 Installing the recipe locally does not publish it to Maven Central.
 
-The combined recipe migrates known Maven coordinates and pins existing version elements to the first public migration
+The combined recipe migrates known Maven coordinates and pins existing version elements to the configured public migration
 releases. This deliberately replaces old version expressions in the affected elements; unrelated properties and
 dependencies remain unchanged. Versionless managed dependencies remain versionless.
 
@@ -94,10 +152,10 @@ BOMs move to `ch.uetlib`:
 | `uetlib-parent`                                         | `ch.ubique.internal:ubique-library-parent`             |
 | `uetlib-spring-boot-starter-parent`                     | `ch.ubique.internal:ubique-spring-boot-starter-parent` |
 
-Migrated parents are pinned to the configured internal releases: library parent `2026.11.2` and starter-parent
-`4.1.2-2026.11.4`, for original, intermediate and public coordinates. Internal parent versions are selected
+Migrated parents are pinned to the configured internal releases: library parent `2026.11.5` and starter-parent
+`4.2.0-2026.11.8`, for original, intermediate and public coordinates. Internal parent versions are selected
 independently
-of public parent versions; the public starter-parent target remains `4.1.2-2026.11.6`.
+of public parent versions; the public starter-parent target is `4.2.0-2026.11.8`.
 Uetlib's own projects (`ch.ubique`, `ch.ubique.uetlib` or `ch.uetlib` groupId, own or inherited, with a `uetlib-*`
 artifactId) and the wrapper parents themselves keep the public parents.
 
@@ -145,7 +203,7 @@ The replacement library requires Java 25 and remains Linux-only and LGPL-3.0-or-
 
 The combined recipe renames `uetlib-spring-boot-geo` to `ch.uetlib:uetlib-geo-spring-boot` for
 original `ch.ubique` and intermediate `ch.ubique.uetlib` / `ch.uetlib` coordinates. Original coordinates
-use the first geo migration release (`4.0.0`); intermediate coordinates retain their version.
+use the configured geo migration release (`4.1.0`); intermediate coordinates retain their version.
 Packages and supported class/resource references move from the old `spring.boot.geo` namespace to
 `ch.uetlib.geo.spring.boot`. Renovate performs the same Maven artifact rename.
 

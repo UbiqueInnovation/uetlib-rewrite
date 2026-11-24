@@ -30,7 +30,7 @@ public class RequireUetlibParent extends ScanningRecipe<Map<Path, Xml.Tag>> {
 
     @Override
     public String getDescription() {
-        return "Abort the combined migration before editing if any Maven project does not inherit a supported uetlib parent, directly or through a local reactor parent.";
+        return "Abort the combined migration before editing if any Maven project does not inherit a supported uetlib parent or Spring Boot's starter-parent 4.0.0 or newer, directly or through a local reactor parent.";
     }
 
     @Override
@@ -67,7 +67,9 @@ public class RequireUetlibParent extends ScanningRecipe<Map<Path, Xml.Tag>> {
         }
         final var group = parent.getChildValue("groupId").orElse("");
         final var artifact = parent.getChildValue("artifactId").orElse("");
-        if (isUetlibParent(group, artifact)) {
+        if (isUetlibParent(group, artifact)
+                || MigrateSpringBootStarterParent.isSpringBootParent(
+                        group, artifact, parent.getChildValue("version").orElse(""))) {
             return true;
         }
         final var relativePath =
@@ -87,24 +89,20 @@ public class RequireUetlibParent extends ScanningRecipe<Map<Path, Xml.Tag>> {
                 || !group.equals(
                         localParent
                                 .getChildValue("groupId")
-                                .or(
-                                        () ->
-                                                localParent
-                                                        .getChild("parent")
-                                                        .flatMap(p -> p.getChildValue("groupId")))
+                                .or(() ->
+                                        localParent
+                                                .getChild("parent")
+                                                .flatMap(p -> p.getChildValue("groupId")))
                                 .orElse(""))
                 || !parent.getChildValue("version")
                         .equals(
                                 localParent
                                         .getChildValue("version")
-                                        .or(
-                                                () ->
-                                                        localParent
-                                                                .getChild("parent")
-                                                                .flatMap(
-                                                                        p ->
-                                                                                p.getChildValue(
-                                                                                        "version"))))) {
+                                        .or(() ->
+                                                localParent
+                                                        .getChild("parent")
+                                                        .flatMap(p ->
+                                                                p.getChildValue("version"))))) {
             return false;
         }
         return inheritsUetlib(parentPath, projects, visited);
@@ -128,8 +126,9 @@ public class RequireUetlibParent extends ScanningRecipe<Map<Path, Xml.Tag>> {
                 // Maven plugin fails before writing any results.
                 ctx.putMessage(PANIC, true);
                 throw new IllegalStateException(
-                        "MigrateToPublicUetlib requires uetlib-parent, uetlib-spring-boot-starter-parent or "
-                                + "their ch.ubique.internal wrappers ubique-library-parent or ubique-spring-boot-starter-parent. Unsupported POMs: "
+                        "MigrateToPublicUetlib requires uetlib-parent, uetlib-spring-boot-starter-parent, "
+                                + "their ch.ubique.internal wrappers ubique-library-parent or ubique-spring-boot-starter-parent, "
+                                + "or org.springframework.boot:spring-boot-starter-parent 4.0.0 or newer. Unsupported POMs: "
                                 + (projects.isEmpty() ? "no pom.xml found" : invalid));
             }
         };
