@@ -114,7 +114,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                         """,
                         """
                         <project>
-                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.5</version></parent>
+                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.6</version></parent>
                             <artifactId>private-application</artifactId>
                             <dependencyManagement><dependencies>
                                 <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-self-bom</artifactId><version>6.1.0</version><type>pom</type><scope>import</scope></dependency>
@@ -189,7 +189,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                         """,
                         """
                         <project>
-                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.5</version></parent>
+                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.6</version></parent>
                             <artifactId>example-lib</artifactId>
                             <dependencies>
                                 <dependency><groupId>ch.uetlib</groupId><artifactId>uetlib-core</artifactId><version>3.1.0</version></dependency>
@@ -211,7 +211,7 @@ class MigrateMavenCoordinatesTest implements RewriteTest {
                         """,
                         """
                         <project>
-                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.5</version></parent>
+                            <parent><groupId>ch.ubique.internal</groupId><artifactId>ubique-library-parent</artifactId><version>2026.11.6</version></parent>
                             <artifactId>example-lib</artifactId>
                         </project>
                         """,
