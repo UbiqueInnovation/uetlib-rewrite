@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- Latest `ubique-library-parent`
+
 ## 1.0.0
 
 - Target internal parents `ubique-library-parent:2026.11.5` and
