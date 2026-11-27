@@ -2,6 +2,7 @@ package ch.uetlib.rewrite;
 
 import static org.openrewrite.java.Assertions.java;
 import static org.openrewrite.test.SourceSpecs.text;
+import static org.openrewrite.xml.Assertions.xml;
 
 import org.junit.jupiter.api.Test;
 import org.openrewrite.test.RecipeSpec;
@@ -115,6 +116,27 @@ class MigrateReferencesTest implements RewriteTest {
                         "<configuration><logger name=\"ch.ubique.backend.job\"/><property value=\"${ch.ubique.backend.job.enabled}\"/></configuration>",
                         "<configuration><logger name=\"ch.uetlib.job\"/><property value=\"${ch.ubique.backend.job.enabled}\"/></configuration>",
                         spec -> spec.path("src/main/resources/logback-spring.xml")));
+    }
+
+    @Test
+    void migratesLoggerPackagesInPrefixedDevelopmentLogbackFiles() {
+        rewriteRun(
+                xml(
+                        """
+                        <configuration>
+                            <logger name="ch.ubique.outdoorplatform" level="DEBUG"/>
+                            <logger name="ch.ubique.backend" level="DEBUG"/>
+                        </configuration>
+                        """,
+                        """
+                        <configuration>
+                            <logger name="ch.ubique.outdoorplatform" level="DEBUG"/>
+                            <logger name="ch.uetlib" level="DEBUG"/>
+                        </configuration>
+                        """,
+                        spec ->
+                                spec.path(
+                                        "outdoor-platform-backend/outdoor-platform-sac-import/conf/dev/outdoor-platform-sac-import-dev-logback.xml")));
     }
 
     @Test

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- Migrate logger package names in prefixed Logback files such as `*-(dev|prod)-logback.xml`.
+
 ## 1.0.1
 
 - Latest `ubique-library-parent`

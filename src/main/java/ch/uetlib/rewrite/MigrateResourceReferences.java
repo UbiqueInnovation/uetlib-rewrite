@@ -47,7 +47,7 @@ public class MigrateResourceReferences extends Recipe {
                                             match.group(1)
                                                     + MigrateClassReferences.packages(
                                                             match.group(2)));
-                } else if (path.matches(".*/logback[^/]*\\.xml")) {
+                } else if (path.matches(".*/(?:logback[^/]*|[^/]+-logback)\\.xml")) {
                     replacement =
                             Pattern.compile("(<logger\\b[^>]*\\bname\\s*=\\s*[\"'])([\\w.]+)")
                                     .matcher(MigrateClassReferences.classNames(text))
